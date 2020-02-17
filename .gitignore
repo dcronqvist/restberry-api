@@ -1,5 +1,6 @@
 # My own gitignores
 config.json
+.vs_code/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
