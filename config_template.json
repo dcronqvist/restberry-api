@@ -1,3 +1,4 @@
 {
-    "greet-home": "Home page"
+    "greet-home": "Home page",
+    "mongo-db-conn": "null"
 }

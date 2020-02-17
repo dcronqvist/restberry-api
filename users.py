@@ -21,5 +21,5 @@ def add_user(username, password):
         "username" : username,
         "password" : password
     }
-    res = db.users.insert_one(user)
+    db.users.insert_one(user)
     return True
