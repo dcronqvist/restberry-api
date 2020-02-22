@@ -21,7 +21,7 @@ def find_user(username):
 def add_user(username, password):
     succ, us = find_user(username)
     if succ:
-        return False
+        return False, None
     
     user = {
         "username" : username,
@@ -29,7 +29,7 @@ def add_user(username, password):
         "privileges" : []
     }
     db.users.insert_one(user)
-    return True
+    return True, user
 
 def validate_user(username, password):
     succ, user = find_user(username)

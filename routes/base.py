@@ -11,18 +11,19 @@ def privilege_required(privilege):
 			if users.has_privilege(working_user, privilege):
 				return func(*args, **kwargs)
 			else:
-				return unauthorized()
+				return unauthorized("Unauthorized Access")
 		wrapper.__name__ = func.__name__
 		return wrapper
 	return decorator
 
 @auth.verify_password
 def verify(username, password):
-    return users.validate_user(username, password)
+	succ = users.validate_user(username, password)
+	return succ
 
 @auth.error_handler
-def unauthorized():
-    return make_response(jsonify("Unauthorized access"), 401)
+def unauthorized(mess="Unauthorized Access"):
+    return make_response(jsonify(mess), 401)
 
 @app.before_request
 @auth.login_required
@@ -31,26 +32,9 @@ def before():
 
 @app.after_request
 def after(response):
-    return response
-#	if response.response[0]:
-#		a = response.response[0]
-#		a = json.loads(a.decode("utf-8").replace("'",'"'))
-#		ret = {
-#			"status_code": response._status_code,
-#			"status": response._status,
-#			"response": a,
-#		}
-#		return make_response(jsonify(ret), ret["status_code"])
-#	else:
-#		ret = {
-#			"status_code": response._status_code,
-#			"status": response._status,
-#			"response": None,
-#		}
-#		return make_response(jsonify(ret), ret["status_code"])
-
-@app.route("/priv")
-def has_priv():
-    succ, user = users.find_user(auth.username())
-    if succ:
-        return make_response(jsonify({"privs" : user["privileges"], "has_super": users.has_privilege(auth.username(), "KEBAB")}), 200)
+	ret = {
+		"status_code": response.status_code,
+		"status": response.status,
+		"response": response.get_json()
+	}
+	return make_response(jsonify(ret), ret["status_code"])
