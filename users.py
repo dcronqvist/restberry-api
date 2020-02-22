@@ -44,3 +44,26 @@ def has_privilege(username, priv):
         return priv in user["privileges"]
     else:
         return False
+
+def add_privilege(username, priv):
+    succ, user = find_user(username)
+    if succ:
+        query = {"username" : username}
+        newVal = {"$set" : { "privileges" : [priv] + user["privileges"]}}
+        db.users.update_one(query, newVal)
+        succ, user = find_user(username)
+        return True, user
+    else:
+        return False, None
+
+def remove_privilege(username, priv):
+    succ, user = find_user(username)
+    if succ:
+        query = {"username" : username}
+        user["privileges"].remove(priv)
+        newVal = {"$set" : { "privileges" : user["privileges"]}}
+        db.users.update_one(query, newVal)
+        succ, user = find_user(username)
+        return True, user
+    else:
+        return False, None
