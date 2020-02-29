@@ -32,6 +32,15 @@ def refresh_token():
 	print("Refresh Google API.")
 	return build("sheets", "v4", credentials=creds)
 
+def set_values(service, id, cell, value):
+	sheet = service.spreadsheets()
+	body = { "values": [[value]] }
+	result = sheet.values().update(spreadsheetId=id, range=cell, valueInputOption="USER_ENTERED", body=body).execute()
+	if result:
+		return True
+	else:
+		return False
+
 def get_values(service, id, range, rvo):
 	sheet = service.spreadsheets()
 	result = sheet.values().get(spreadsheetId=id, range=range, valueRenderOption=rvo).execute()

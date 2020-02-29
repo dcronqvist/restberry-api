@@ -33,6 +33,12 @@ def get_outcome(category):
 		return {"type": {"category" : category }, "result": result, "budget": budget, "average": average, "balance": balance}
 	return None
 
+def get_guessed_categories(amount):
+	sheets.set_values(service, economy_sheet, "AVGUtgiftTransaktion!E24", amount)
+	result = sheets.get_values(service, economy_sheet, "AVGUtgiftTransaktion!G23:G45", "FORMATTED_VALUE")
+	cats = [cat[0] for cat in result]
+	return cats
+
 @app.route("/econ/categories/findall")
 def api_get_categories():
 	cats = get_categories()
@@ -58,6 +64,11 @@ def api_get_outcome_month():
     month = get_month()
     res = {"type": {"month-r": month[0], "month-c": month[1] }, "result": "{:.2f}".format(rowOut[1]), "budget": "{:.2f}".format(rowOut[3]), "average": "{:.2f}".format(rowOut[5]), "balance": "{:.2f}".format(rowOut[8])}
     return make_response(jsonify(res), 200)
+
+@app.route("/econ/categories/guess/<string:amount>")
+def api_get_category_recomendation(amount):
+	cats = get_guessed_categories(amount)
+	return make_response(jsonify(cats), 200)
 
 @app.route("/econ/outcomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
 def api_register_outcome(date, category, description, amount):
