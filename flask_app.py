@@ -5,5 +5,7 @@ import config as config
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
+import routes.base
 import routes.greet
+import routes.economy
 

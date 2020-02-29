@@ -1,4 +1,7 @@
 {
     "greet-home": "Hello World!",
-    "mongo-db-conn": "null"
+    "mongo-db-conn": "null",
+    "secret-file": "creds",
+    "economy_sheet": "google-sheets-id",
+    "economy-out-form": "form"
 }
