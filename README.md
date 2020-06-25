@@ -7,7 +7,7 @@ another change, from hercules.
 ## Endpoints
 
 URL | HTTP Method | Returns
------------- | -------------
+------------ | ------------- | -------------
 / | GET | Simply returns a "Hello World!", to greet user for correct usage
 /econ/outcomes/month | GET | Returns this month's result, balance and budget
 /econ/outcomes/month/<string:category> | GET | Returns this month's result, balance, budget and average for specific category
