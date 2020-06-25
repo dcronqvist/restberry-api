@@ -1,6 +1,6 @@
 # My own gitignores
 config.json
-.vs_code/
+.vscode/
 credentials.json
 token.pickle
 

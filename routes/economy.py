@@ -4,47 +4,54 @@ from flask import make_response, jsonify, request, render_template
 import requests
 import datetime
 
+# Make sure that the token for using the Sheets API is up to date
 service = sheets.refresh_token()
 economy_sheet = config.get_setting("economy_sheet")
 
+# Get which month we are in right now
 def get_month():
     cats = sheets.get_values(service, economy_sheet, "Översikt Akt. Mån!D6:D7", "FORMATTED_VALUE")
     new = [cat[0] for cat in cats]
     return new
 
-
+# Get all available categories for outcomes
 def get_categories():
 	cats = sheets.get_values(service, economy_sheet, "UniqueKortUtCategories", "FORMATTED_VALUE")
 	new = [cat[0] for cat in cats]
 	return new
 
+# Get overview of all categories this current month, aswell as the balance, result and average of this month
 def get_outcome_row_category(category):
 	rows = sheets.get_values(service, economy_sheet, "Översikt Akt. Mån!C14:K35", "UNFORMATTED_VALUE")
 	row = sheets.get_row_from_first_c(rows, category)
 	return row
 
+# Get info about specific category, result, budget, average and balance
 def get_outcome(category):
 	row = get_outcome_row_category(category)
 	if row:
-		result = "{:.2f}".format(row[1], 2)
-		budget = "{:.2f}".format(row[3], 2)
-		average = "{:.2f}".format(row[5], 2)
-		balance = "{:.2f}".format(row[8], 2)
+		result = "{:.2f}".format(row[1])
+		budget = "{:.2f}".format(row[3])
+		average = "{:.2f}".format(row[5])
+		balance = "{:.2f}".format(row[8])
 		return {"type": {"category" : category }, "result": result, "budget": budget, "average": average, "balance": balance}
 	return None
 
+# Let spreadsheet "guess" which category this might be, from the specified amount
 def get_guessed_categories(amount):
 	sheets.set_values(service, economy_sheet, "AVGUtgiftTransaktion!E24", amount)
 	result = sheets.get_values(service, economy_sheet, "AVGUtgiftTransaktion!G23:G45", "FORMATTED_VALUE")
 	cats = [cat[0] for cat in result]
 	return cats
 
-@app.route("/econ/categories/findall")
+# API Endpoint for getting all possible outcome categories
+@app.route("/econ/outcomes/categories/findall")
 def api_get_categories():
 	cats = get_categories()
 	return make_response(jsonify(cats), 200)
 
-@app.route("/econ/categories/register/<string:category>")
+# API Endpoint for registering new outcome category
+@app.route("/econ/outcomes/categories/register/<string:category>")
 def api_register_category(category):
 	res = sheets.register_outcome(datetime.datetime.now().date().isoformat(), category, "New category", 0)
 	return make_response(jsonify({"success": res, "category": category}), 200)
