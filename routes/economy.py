@@ -56,6 +56,13 @@ def api_register_category(category):
 	res = sheets.register_outcome(datetime.datetime.now().date().isoformat(), category, "New category", 0)
 	return make_response(jsonify({"success": res, "category": category}), 200)
 
+# API Endpoint for guessing which category a certain amount might be
+@app.route("/econ/categories/guess/<string:amount>")
+def api_get_category_recomendation(amount):
+	cats = get_guessed_categories(amount)
+	return make_response(jsonify(cats), 200)
+
+# API Endpoint for getting this month's stats for a specific category
 @app.route("/econ/outcomes/month/<string:category>")
 def api_get_outcome_category(category):
 	print(category)
@@ -65,6 +72,7 @@ def api_get_outcome_category(category):
 	else:
 		return make_response(jsonify("No such category"), 404)
 
+# API Endpoint for getting this month's stats
 @app.route("/econ/outcomes/month")
 def api_get_outcome_month():
     rowOut = get_outcome_row_category("Totalt Ut")
@@ -72,11 +80,7 @@ def api_get_outcome_month():
     res = {"type": {"month-r": month[0], "month-c": month[1] }, "result": "{:.2f}".format(rowOut[1]), "budget": "{:.2f}".format(rowOut[3]), "average": "{:.2f}".format(rowOut[5]), "balance": "{:.2f}".format(rowOut[8])}
     return make_response(jsonify(res), 200)
 
-@app.route("/econ/categories/guess/<string:amount>")
-def api_get_category_recomendation(amount):
-	cats = get_guessed_categories(amount)
-	return make_response(jsonify(cats), 200)
-
+# API Endpoint for registering outcome
 @app.route("/econ/outcomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
 def api_register_outcome(date, category, description, amount):
 	res = sheets.register_outcome(date, category, description, amount)

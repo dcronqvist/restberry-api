@@ -14,3 +14,4 @@ URL | HTTP Method | Returns
 /econ/outcomes/categories/findall | GET | Returns all available categories for outcomes
 /econ/outcomes/categories/guess/<string:amount> | GET | Returns a list of categories that the specified amount might be registered as
 /econ/outcomes/categories/register/<string:category> | GET | Registers a new category to be used for outcomes
+/econ/outcomes/register/<string:date>/<string:category>/<string:description>/<string:amount> | GET | Registers the specified outcome to the spreadsheet
