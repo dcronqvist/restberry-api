@@ -1,4 +1,6 @@
-import config, users, sheets
+import config
+import users
+import sheets
 from flask_app import app, auth
 from flask import make_response, jsonify, request, render_template
 import requests
@@ -15,8 +17,14 @@ def get_month():
     return new
 
 # Get all available categories for outcomes
-def get_categories():
+def get_outcome_categories():
 	cats = sheets.get_values(service, economy_sheet, "UniqueKortUtCategories", "FORMATTED_VALUE")
+	new = [cat[0] for cat in cats]
+	return new
+
+# Get all available categories for outcomes
+def get_income_categories():
+	cats = sheets.get_values(service, economy_sheet, "UniqueKortInCategories", "FORMATTED_VALUE")
 	new = [cat[0] for cat in cats]
 	return new
 
@@ -47,7 +55,7 @@ def get_guessed_categories(amount):
 # API Endpoint for getting all possible outcome categories
 @app.route("/econ/outcomes/categories/findall")
 def api_get_categories():
-	cats = get_categories()
+	cats = get_outcome_categories()
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for registering new outcome category
@@ -57,7 +65,7 @@ def api_register_category(category):
 	return make_response(jsonify({"success": res, "category": category}), 200)
 
 # API Endpoint for guessing which category a certain amount might be
-@app.route("/econ/categories/guess/<string:amount>")
+@app.route("/econ/outcomes/categories/guess/<string:amount>")
 def api_get_category_recomendation(amount):
 	cats = get_guessed_categories(amount)
 	return make_response(jsonify(cats), 200)
@@ -86,3 +94,19 @@ def api_register_outcome(date, category, description, amount):
 	res = sheets.register_outcome(date, category, description, amount)
 	outcome = get_outcome(category)
 	return make_response(jsonify(outcome), 200)
+
+######################### BELOW IS INCOME RELATED ENDPOINTS ##############################
+
+# API Endpoint for getting all available categories for incomes
+@app.route("/econ/incomes/categories/findall")
+def api_get_income_categories():
+	cats = get_income_categories()
+	return make_response(jsonify(cats), 200)
+
+# API Endpoint for getting this month's stats regarding incomes
+@app.route("/econ/incomes/month")
+def api_get_income_month():
+	rowIn = get_outcome_row_category("Totalt In")
+	month = get_month()
+	res = {"type": {"month-r": month[0], "month-c": month[1] }, "result": "{:.2f}".format(rowIn[1]), "budget": "{:.2f}".format(rowIn[3]), "balance": "{:.2f}".format(rowIn[8])}
+	return make_response(jsonify(res), 200)
