@@ -3,5 +3,6 @@
     "mongo-db-conn": "null",
     "secret-file": "creds",
     "economy_sheet": "google-sheets-id",
-    "economy-out-form": "form"
+    "economy-out-form": "form",
+    "economy-in-form": "form"
 }

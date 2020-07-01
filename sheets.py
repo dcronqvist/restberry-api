@@ -61,3 +61,11 @@ def register_outcome(date, category, description, amount):
 	if resp:
 		return True
 	return False
+
+def register_income(date, category, description, amount):
+	sheet = config.get_setting("economy-in-form")
+	url = f"https://docs.google.com/forms/d/e/{sheet}/formResponse?usp=pp_url&entry.1885435352={date}&entry.218079050={category}&entry.1056613280={amount}&entry.316191158={description}&submit=Submit"
+	resp = requests.get(url)
+	if resp:
+		return True
+	return False
