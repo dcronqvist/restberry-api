@@ -110,3 +110,9 @@ def api_get_income_month():
 	month = get_month()
 	res = {"type": {"month-r": month[0], "month-c": month[1] }, "result": "{:.2f}".format(rowIn[1]), "budget": "{:.2f}".format(rowIn[3]), "balance": "{:.2f}".format(rowIn[8])}
 	return make_response(jsonify(res), 200)
+
+# API Endpoint for registering income
+@app.route("/econ/incomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
+def api_register_income(date, category, description, amount):
+	res = sheets.register_income(date, category, description, amount)
+	return make_response(jsonify(res), 200)
