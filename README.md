@@ -7,8 +7,11 @@ another change, from hercules.
 ## Endpoints
 
 There is a base endpoint of **/** which simply greets the user with a `Hello World!`.
+If no valid authorization is provided, then the user will be given a `401 UNAUTHORIZED ACCESS` error.
+Valid authorizations are provided by me.
 
 ### Economy
+Further on, *cursive* words in endpoints mean parameters. These are usually strings or ints.
 
 URL | HTTP Method | Returns
 ------------ | ------------- | -------------
