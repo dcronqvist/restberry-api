@@ -8,9 +8,12 @@ another change, from hercules.
 
 There is a base endpoint of **/** which simply greets the user with a `Hello World!`.
 If no valid authorization is provided, then the user will be given a `401 UNAUTHORIZED ACCESS` error.
-Valid authorizations are provided by me.
+*Cursive* words in endpoints mean parameters. These are usually strings or ints.
 
 ### Endpoints
+
+These are endpoints which serve as a way to find all available endpoints of the API in a list. I use these as a way to quickly
+test new endpoints from my Siri Shortcuts.
 
 URL | HTTP Method | Returns
 ------------ | ------------- | -------------
@@ -18,7 +21,8 @@ URL | HTTP Method | Returns
 /endps/search/*string* | GET | Returns all endpoints which contains the search term
 
 ### Economy
-Further on, *cursive* words in endpoints mean parameters. These are usually strings or ints.
+
+All of these endpoints are tied to my personal finance management spreadsheet. If you need help with Excel, hmu.
 
 URL | HTTP Method | Returns
 ------------ | ------------- | -------------
