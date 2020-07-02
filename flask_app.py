@@ -9,3 +9,4 @@ import routes.base
 import routes.greet
 import routes.economy
 import routes.endpoints
+import routes.food
