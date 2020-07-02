@@ -18,7 +18,7 @@ def week_first_last(day):
 
     return (beginning_of_week, end_of_week)
 
-# Get the week's foods, depending on language.
+# Get the week's foods at Kårrestaurangen, depending on language.
 def jh_get_karr_week(lang):
     today = datetime.datetime.today()
     first, last = week_first_last(today)
@@ -40,6 +40,7 @@ def jh_get_karr_week(lang):
                 week[dayName] = dispName.get("dishDisplayName")
     return week
 
+# Get the week's foods at Express, depending on language
 def jh_get_express_week(lang):
     today = datetime.datetime.today()
     first, last = week_first_last(today)
