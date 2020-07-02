@@ -62,6 +62,15 @@ def jh_get_express_week(lang):
                 week[dayName] = dispName.get("dishDisplayName")
     return week
 
+# Get today's Express lunch, with language
+def jh_get_express_today(lang):
+    response = requests.get(f"http://carbonateapiprod.azurewebsites.net/api/v1/mealprovidingunits/21f31565-5c2b-4b47-d2a1-08d558129279/dishoccurrences")
+    today = None
+    for dispName in response.json()[0].get("displayNames"):
+        if lang in dispName.get("displayNameCategory").get("displayNameCategoryName").lower():
+            today = dispName.get("dishDisplayName")
+    return today
+
 # API Endpoint for retrieving today's week's Kårrestaurangen
 @app.route("/food/jh/karr/week/<string:lang>")
 def api_jh_karr_week(lang):
@@ -71,3 +80,8 @@ def api_jh_karr_week(lang):
 @app.route("/food/jh/express/week/<string:lang>")
 def api_jh_express_week(lang):
     return make_response(jsonify(jh_get_karr_week(lang)), 200)
+
+# API Endpoint for retrieving today's Express
+@app.route("/food/jh/express/today/<string:lang>")
+def api_jh_express_today(lang):
+    return make_response(jsonify(jh_get_express_today(lang)), 200)
