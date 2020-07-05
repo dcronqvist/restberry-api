@@ -1,8 +1,5 @@
 # restberry-api
-api for my raspberry pi as a rest api host
-simple small change
-another change to make sure access token persists.
-another change, from hercules.
+A REST API that is hosted on my raspberry pi 4. Has different categories of endpoints which all serve different purposes. Most of them are GET endpoints, to make it as easy as possible to interact with. It's always hosted over a connection with SSL, to make sure all traffic is secured.
 
 ## Endpoints
 
