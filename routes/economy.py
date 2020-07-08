@@ -30,7 +30,7 @@ def get_income_categories():
 
 # Get overview of all categories this current month, aswell as the balance, result and average of this month
 def get_outcome_row_category(category):
-	rows = sheets.get_values(service, economy_sheet, "Översikt Akt. Mån!C14:K35", "UNFORMATTED_VALUE")
+	rows = sheets.get_values(service, economy_sheet, "Översikt Akt. Mån!C14:K36", "UNFORMATTED_VALUE")
 	row = sheets.get_row_from_first_c(rows, category)
 	return row
 
@@ -48,7 +48,7 @@ def get_outcome(category):
 # Let spreadsheet "guess" which category this might be, from the specified amount
 def get_guessed_categories(amount):
 	sheets.set_values(service, economy_sheet, "AVGUtgiftTransaktion!E24", amount)
-	result = sheets.get_values(service, economy_sheet, "AVGUtgiftTransaktion!G23:G45", "FORMATTED_VALUE")
+	result = sheets.get_values(service, economy_sheet, "AVGUtgiftTransaktion!G23:G50", "FORMATTED_VALUE")
 	cats = [cat[0] for cat in result]
 	return cats
 
