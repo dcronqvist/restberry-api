@@ -115,10 +115,10 @@ def api_register_outcome(date, category, description, amount):
 ######################### BELOW IS INCOME RELATED ENDPOINTS ##############################
 
 # API Endpoint for getting all available categories for incomes
-@app.route("/econ/incomes/categories/findall")
-def api_get_income_categories():
-	cats = get_income_categories()
-	return make_response(jsonify(cats), 200)
+#@app.route("/econ/incomes/categories/findall")
+#def api_get_income_categories():
+	#cats = get_income_categories()
+	#return make_response(jsonify(cats), 200)
 
 # API Endpoint for getting this month's stats regarding incomes
 @app.route("/econ/incomes/month")
