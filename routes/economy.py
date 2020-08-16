@@ -55,7 +55,7 @@ def get_guessed_categories(amount):
 
 def get_searched_categories(search):
 	cats = get_outcome_categories()
-	print(usearch)
+	print(search)
 	s = list()
 	for category in cats:
 		if(search.lower() in category.lower()):
