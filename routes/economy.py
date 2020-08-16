@@ -5,6 +5,7 @@ from flask_app import app, auth
 from flask import make_response, jsonify, request, render_template
 import requests
 import datetime
+import re
 
 # Make sure that the token for using the Sheets API is up to date
 service = sheets.refresh_token()
@@ -52,6 +53,16 @@ def get_guessed_categories(amount):
 	cats = [cat[0] for cat in result]
 	return cats
 
+def get_searched_categories(search):
+	cats = get_outcome_categories()
+	print(usearch)
+	s = list()
+	for category in cats:
+		if(search.lower() in category.lower()):
+			s.append(category)
+	return s
+
+
 # API Endpoint for getting all possible outcome categories
 @app.route("/econ/outcomes/categories/findall")
 def api_get_categories():
@@ -68,6 +79,12 @@ def api_register_category(category):
 @app.route("/econ/outcomes/categories/guess/<string:amount>")
 def api_get_category_recomendation(amount):
 	cats = get_guessed_categories(amount)
+	return make_response(jsonify(cats), 200)
+
+# API Endpoint for searching which category that matches this string
+@app.route("/econ/outcomes/categories/search/<string:search>")
+def api_get_category_by_search(search):
+	cats = get_searched_categories(search)
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for getting this month's stats for a specific category
