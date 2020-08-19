@@ -7,6 +7,8 @@ import requests
 import datetime
 import re
 
+from routes.base import privilege_required
+
 # Make sure that the token for using the Sheets API is up to date
 service = sheets.refresh_token()
 economy_sheet = config.get_setting("economy_sheet")
@@ -65,30 +67,35 @@ def get_searched_categories(search):
 
 # API Endpoint for getting all possible outcome categories
 @app.route("/econ/outcomes/categories/findall")
+@privilege_required("ECON_OUT")
 def api_get_categories():
 	cats = get_outcome_categories()
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for registering new outcome category
 @app.route("/econ/outcomes/categories/register/<string:category>")
+@privilege_required("ECON_REG")
 def api_register_category(category):
 	res = sheets.register_outcome(datetime.datetime.now().date().isoformat(), category, "New category", 0)
 	return make_response(jsonify({"success": res, "category": category}), 200)
 
 # API Endpoint for guessing which category a certain amount might be
 @app.route("/econ/outcomes/categories/guess/<string:amount>")
+@privilege_required("ECON_OUT")
 def api_get_category_recomendation(amount):
 	cats = get_guessed_categories(amount)
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for searching which category that matches this string
 @app.route("/econ/outcomes/categories/search/<string:search>")
+@privilege_required("ECON_OUT")
 def api_get_category_by_search(search):
 	cats = get_searched_categories(search)
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for getting this month's stats for a specific category
 @app.route("/econ/outcomes/month/<string:category>")
+@privilege_required("ECON_OUT")
 def api_get_outcome_category(category):
 	print(category)
 	row = get_outcome(category)
@@ -99,6 +106,7 @@ def api_get_outcome_category(category):
 
 # API Endpoint for getting this month's stats
 @app.route("/econ/outcomes/month")
+@privilege_required("ECON_OUT")
 def api_get_outcome_month():
     rowOut = get_outcome_row_category("Totalt Ut")
     month = get_month()
@@ -107,6 +115,7 @@ def api_get_outcome_month():
 
 # API Endpoint for registering outcome
 @app.route("/econ/outcomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
+@privilege_required("ECON_REG")
 def api_register_outcome(date, category, description, amount):
 	res = sheets.register_outcome(date, category, description, amount)
 	outcome = get_outcome(category)
@@ -116,12 +125,14 @@ def api_register_outcome(date, category, description, amount):
 
 # API Endpoint for getting all available categories for incomes
 @app.route("/econ/incomes/categories/findall")
+@privilege_required("ECON_IN")
 def api_get_income_categories():
 	cats = get_income_categories()
 	return make_response(jsonify(cats), 200)
 
 # API Endpoint for getting this month's stats regarding incomes
 @app.route("/econ/incomes/month")
+@privilege_required("ECON_IN")
 def api_get_income_month():
 	rowIn = get_outcome_row_category("Totalt In")
 	month = get_month()
@@ -130,6 +141,7 @@ def api_get_income_month():
 
 # API Endpoint for registering income
 @app.route("/econ/incomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
+@privilege_required("ECON_REG")
 def api_register_income(date, category, description, amount):
 	res = sheets.register_income(date, category, description, amount)
 	return make_response(jsonify(res), 200)

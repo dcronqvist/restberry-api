@@ -14,7 +14,7 @@ def privilege_required(privilege):
 			if users.has_privilege(working_user, privilege):
 				return func(*args, **kwargs)
 			else:
-				return unauthorized("Unauthorized Access")
+				return unauthorized(f"Unauthorized Access. Missing privilege: {privilege}")
 		wrapper.__name__ = func.__name__
 		return wrapper
 	return decorator

@@ -6,6 +6,8 @@ from flask import make_response, jsonify, request, render_template
 import requests
 import datetime
 
+from routes.base import privilege_required
+
 # Get first and last date of the week the specified day is in
 def week_first_last(day):
     day_of_week = day.weekday()
@@ -73,15 +75,18 @@ def jh_get_express_today(lang):
 
 # API Endpoint for retrieving today's week's Kårrestaurangen
 @app.route("/food/jh/karr/week/<string:lang>")
+@privilege_required("FOOD")
 def api_jh_karr_week(lang):
     return make_response(jsonify(jh_get_karr_week(lang)), 200)
 
 # API Endpoint for retrieving today's week's Express
 @app.route("/food/jh/express/week/<string:lang>")
+@privilege_required("FOOD")
 def api_jh_express_week(lang):
     return make_response(jsonify(jh_get_karr_week(lang)), 200)
 
 # API Endpoint for retrieving today's Express
 @app.route("/food/jh/express/today/<string:lang>")
+@privilege_required("FOOD")
 def api_jh_express_today(lang):
     return make_response(jsonify(jh_get_express_today(lang)), 200)

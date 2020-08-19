@@ -41,6 +41,9 @@ def validate_user(username, password):
 def has_privilege(username, priv):
     succ, user = find_user(username)
     if succ:
+        if "SUPER" in user["privileges"]:
+            return True
+
         return priv in user["privileges"]
     else:
         return False
