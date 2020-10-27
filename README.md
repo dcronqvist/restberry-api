@@ -38,7 +38,7 @@ URL | HTTP Method | Privileges | Returns
 /econ/outcomes/categories/guess/*amount* | GET | ECON_OUT | Returns a list of categories that the specified amount might be registered as
 /econ/outcomes/categories/search/*category* | GET | ECON_OUT | Returns a list of categories that match the specified search string
 /econ/outcomes/categories/register/*category* | GET | ECON_REG | Registers a new category to be used for outcomes
-/econ/outcomes/register/*date*/*category*/*description*/*amount* | GET | ECON_REG | Registers the specified outcome to the spreadsheet
+/econ/outcomes/register | POST | ECON_REG | Registers the specified outcome to the spreadsheet. Expects payload of format: `{"date:" "short-iso", "category": "yup", "description": "yadda", "amount": 1337}`.
 /econ/incomes/month | GET | ECON_IN | Returns this month's income result, balance and budget
 /econ/incomes/categories/findall | GET | ECON_IN | Returns all available categories for incomes
 /econ/incomes/register/*date*/*category*/*description*/*amount* | GET | ECON_REG | Registers the specified income to the spreadsheets

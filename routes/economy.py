@@ -2,7 +2,7 @@ import config
 import users
 import sheets
 from flask_app import app, auth
-from flask import make_response, jsonify, request, render_template
+from flask import abort, make_response, jsonify, request, render_template
 import requests
 import datetime
 import re
@@ -114,9 +114,15 @@ def api_get_outcome_month():
     return make_response(jsonify(res), 200)
 
 # API Endpoint for registering outcome
-@app.route("/econ/outcomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
+@app.route("/econ/outcomes/register", methods=["POST"])
 @privilege_required("ECON_REG")
-def api_register_outcome(date, category, description, amount):
+def api_register_outcome():
+	if not request.json or not 'date' in request.json:
+		abort(400)
+	date = request.json['date']
+	category = request.json['category']
+	description = request.json['description']
+	amount = request.json['amount']
 	res = sheets.register_outcome(date, category, description, amount)
 	outcome = get_outcome(category)
 	return make_response(jsonify(outcome), 200)
