@@ -146,8 +146,14 @@ def api_get_income_month():
 	return make_response(jsonify(res), 200)
 
 # API Endpoint for registering income
-@app.route("/econ/incomes/register/<string:date>/<string:category>/<string:description>/<string:amount>")
+@app.route("/econ/incomes/register", methods=["POST"])
 @privilege_required("ECON_REG")
-def api_register_income(date, category, description, amount):
+def api_register_income():
+	if not request.json or not 'date' in request.json:
+		abort(400)
+	date = request.json['date']
+	category = request.json['category']
+	description = request.json['description']
+	amount = request.json['amount']
 	res = sheets.register_income(date, category, description, amount)
 	return make_response(jsonify(res), 200)

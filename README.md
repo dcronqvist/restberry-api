@@ -41,7 +41,7 @@ URL | HTTP Method | Privileges | Returns
 /econ/outcomes/register | POST | ECON_REG | Registers the specified outcome to the spreadsheet. Expects payload of format: `{"date:" "short-iso", "category": "yup", "description": "yadda", "amount": 1337}`.
 /econ/incomes/month | GET | ECON_IN | Returns this month's income result, balance and budget
 /econ/incomes/categories/findall | GET | ECON_IN | Returns all available categories for incomes
-/econ/incomes/register/*date*/*category*/*description*/*amount* | GET | ECON_REG | Registers the specified income to the spreadsheets
+/econ/incomes/register | POST | ECON_REG | Registers the specified income to the spreadsheet. Expects payload of format: `{"date:" "short-iso", "category": "yup", "description": "yadda", "amount": 1337}`.
 
 ### Food
 
