@@ -122,7 +122,7 @@ def api_register_outcome():
 	date = request.json['date']
 	category = request.json['category']
 	description = request.json['description']
-	amount = request.json['amount']
+	amount = str(request.json['amount']).replace(".", ",")
 	res = sheets.register_outcome(date, category, description, amount)
 	outcome = get_outcome(category)
 	return make_response(jsonify(outcome), 200)
@@ -154,6 +154,6 @@ def api_register_income():
 	date = request.json['date']
 	category = request.json['category']
 	description = request.json['description']
-	amount = request.json['amount']
+	amount = str(request.json['amount']).replace(".", ",")
 	res = sheets.register_income(date, category, description, amount)
 	return make_response(jsonify(res), 200)
