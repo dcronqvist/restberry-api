@@ -1,6 +1,8 @@
 # restberry-api
 A REST API that is hosted on my raspberry pi 4. Has different categories of endpoints which all serve different purposes. Most of them are GET endpoints, to make it as easy as possible to interact with. It's always hosted over a connection with SSL, to make sure all traffic is secured.
 
+Check it out here [https://api.dcronqvist.se](https://api.dcronqvist.se)
+
 ## Endpoints
 
 There is a base endpoint of **/** which simply greets the user with a `Hello World!`.
