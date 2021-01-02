@@ -1,4 +1,4 @@
-from flask_app import app
+from api import app
 
 app.config["JSON_AS_ASCII"] = False
 

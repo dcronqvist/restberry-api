@@ -1,10 +1,13 @@
-from flask import make_response, jsonify
-import json
-from flask_app import app, auth
+from flask import Flask, make_response, jsonify
+from flask_httpauth import HTTPBasicAuth
+from flask_cors import CORS
+import users
 import config as config
-import users as users
-import urllib.parse as prs
 
+app = Flask(__name__)
+CORS(app)
+
+auth = HTTPBasicAuth()
 
 # Check if user has privilege to use part of API
 def privilege_required(privilege):
@@ -28,7 +31,7 @@ def verify(username, password):
 # Tell user that they have unauthorized access to this part of the API
 @auth.error_handler
 def unauthorized(mess="Unauthorized Access"):
-    return make_response(jsonify(mess), 401)
+    return make_response(jsonify(["ERROR: Unauthorized Access"]), 401)
 
 # Do nothing special before request, but make sure that the user is logged in
 @app.before_request
@@ -45,3 +48,8 @@ def after(response):
 		"response": response.get_json()
 	}
 	return make_response(jsonify(ret), ret["status_code"])
+
+import api.routes.economy.accounts
+import api.routes.economy.transactions
+import api.routes.economy.periods
+import api.routes.endpoints

@@ -1,7 +1,6 @@
 import config
 import users
-import sheets
-from flask_app import app, auth
+from api import app, auth
 from flask import make_response, jsonify, request, render_template
 import requests
 import datetime
