@@ -41,7 +41,7 @@ def validate_user(username, password):
 def has_privilege(username, priv):
     succ, user = find_user(username)
     if succ:
-        if "SUPER" in user["privileges"]:
+        if "super" in user["privileges"]:
             return True
 
         return priv in user["privileges"]
@@ -52,7 +52,7 @@ def add_privilege(username, priv):
     succ, user = find_user(username)
     if succ:
         query = {"username" : username}
-        newVal = {"$set" : { "privileges" : [priv] + user["privileges"]}}
+        newVal = {"$set" : { "privileges" : [priv.tolower()] + user["privileges"]}}
         db.users.update_one(query, newVal)
         succ, user = find_user(username)
         return True, user

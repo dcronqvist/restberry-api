@@ -14,10 +14,10 @@ def privilege_required(privilege):
 	def decorator(func):
 		def wrapper(*args, **kwargs):
 			working_user = auth.username()
-			if users.has_privilege(working_user, privilege):
+			if users.has_privilege(working_user, privilege.lower()):
 				return func(*args, **kwargs)
 			else:
-				return unauthorized(f"Unauthorized Access. Missing privilege: {privilege}")
+				return make_response(jsonify([f"ERROR: Insufficient privileges, resource requires '{privilege.lower()}' for access."]), 403)
 		wrapper.__name__ = func.__name__
 		return wrapper
 	return decorator
@@ -28,10 +28,11 @@ def verify(username, password):
 	succ = users.validate_user(username, password)
 	return succ
 
+
 # Tell user that they have unauthorized access to this part of the API
 @auth.error_handler
-def unauthorized(mess="Unauthorized Access"):
-    return make_response(jsonify(["ERROR: Unauthorized Access"]), 401)
+def error(status):
+    return make_response(jsonify(None), 401)
 
 # Do nothing special before request, but make sure that the user is logged in
 @app.before_request

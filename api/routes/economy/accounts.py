@@ -6,62 +6,61 @@ import requests
 import datetime
 import re
 from pytechecker import check
-
 from db import coll_accounts, coll_trans
 
-@app.route("/econ/accounts/all", methods=["GET"])
-def get_all_accounts():
-    username = auth.username()
-    accs = coll_accounts.find({"user": username }, {"_id": 0})
-    return make_response(jsonify(list(accs)), 200)
 
-post_search_accounts_sample = {
-    "search": {
-        "required": True,
-        "allowed_types": [str]
+# You can specify zero number params in the query string, and you'll retrieve all your accounts.
+# If you, however, specify one or more numbers, like this ?number=599&number=244, you'll get all the ones you specified.
+# You will always get an array of accounts, even if you only specify one number.
+# curl "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
+@app.route("/v1/economy/accounts", methods=["GET"])
+@privilege_required("economy")
+def get_economy_accounts():
+    sample = {
+        "number": {
+            "required": False,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
+        }
     }
-}
-
-@app.route("/econ/accounts/search", methods=["POST"])
-def post_search_accounts():
-    query = request.get_json()
     username = auth.username()
-    succ, errors = check(post_search_accounts_sample, query)
+    query = request.args.to_dict(flat=False)
+    succ, errors = check(sample, query)
     if not succ:
         return make_response(jsonify(errors), 400)
-    accounts = coll_accounts.find({ "name": { "$regex": query["search"], "$options": "i" }, "user": username}, {"_id": 0})
-    return make_response(jsonify(list(accounts)), 200)
-
-
-@app.route("/econ/accounts/id/<int:_id>", methods=["GET"])
-def get_account_by_id(_id):
-    username = auth.username()
-    acc = coll_accounts.find_one({"number": _id, "user": username}, {"_id": 0})
-    if acc:
-        return make_response(jsonify(acc), 200)
+    if "number" in query:
+        accs = coll_accounts.find({"user": username, "number": { "$in": [int(i) for i in query["number"]] }}, {"_id": 0})
+        return make_response(jsonify(list(accs)), 200)
     else:
-        return make_response(jsonify(None), 404)
+        accs = coll_accounts.find({"user": username}, {"_id": 0})
+        return make_response(jsonify(list(accs)), 200)
 
-post_new_account_sample = {
-    "number": {
-        "required": True,
-        "allowed_types": [int]
-    },
-    "name": {
-        "required": True,
-        "allowed_types": [str]
-    },
-    "desc": {
-        "required": True,
-        "allowed_types": [str]
+
+# Expects nothing in the query string.
+# Returns the new account, after creating it.
+# curl -X POST -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts"
+@app.route("/v1/economy/accounts", methods=["POST"])
+@privilege_required("economy")
+def post_economy_accounts():
+    sample = {
+        "number": {
+            "required": True,
+            "allowed_types": [int]
+        },
+        "name": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "desc": {
+            "required": True,
+            "allowed_types": [str]
+        }
     }
-}
-
-@app.route("/econ/accounts/create", methods=["POST"])
-def post_new_account():
     username = auth.username()
     query = request.get_json()
-    succ, errors = check(post_new_account_sample, query)
+    succ, errors = check(sample, query)
     if not succ:
         return make_response(jsonify(errors), 400)
     query["user"] = username
@@ -72,5 +71,78 @@ def post_new_account():
         insert = coll_accounts.insert_one(query, {"_id": 0})
         del query["_id"]
         return make_response(jsonify(query), 200)
-    
 
+
+# Expects only one number=x in the query string.
+# Returns the new account, after updating it.
+# curl -X PUT -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
+@app.route("/v1/economy/accounts", methods=["PUT"])
+@privilege_required("economy")
+def put_economy_accounts():
+    sample_json = {
+        "number": {
+            "required": True,
+            "allowed_types": [int]
+        },
+        "name": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "desc": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
+    sample_args = {
+        "number": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
+    args = request.args.to_dict(flat=True)
+    query = request.get_json()
+    username = auth.username()
+    # Check args
+    succ, errors = check(sample_args, args)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    # Check query
+    succ, errors = check(sample_json, query)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    num = 0
+    try:
+        num = int(args["number"])
+    except:
+        return make_response(jsonify(["ERROR: Required parameter 'number' was not an integer."]), 400)
+    # check if account exists.
+    test = coll_accounts.find_one({"user": username, "number": num})
+    if not test:
+        return make_response(jsonify("ERROR: No such account exists."), 404)
+    query["user"] = username
+    coll_accounts.replace_one({"user": username, "number": num}, query)
+    return make_response(jsonify(query), 200)
+
+
+# Expects at least one num=x in the query string, you can specify multiple.
+# Returns the amount of accounts that were deleted.    
+# curl -X DELETE "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
+@app.route("/v1/economy/accounts", methods=["DELETE"])
+@privilege_required("economy")
+def delete_economy_accounts():
+    sample = {
+        "number": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
+        }
+    }
+    args = request.args.to_dict(flat=False)
+    username = auth.username()
+    succ, errors = check(sample, args)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    x = coll_accounts.delete_many({"number": { "$in": [int(i) for i in args["number"]] }, "user": username})
+    return make_response(jsonify(x.deleted_count), 200)
