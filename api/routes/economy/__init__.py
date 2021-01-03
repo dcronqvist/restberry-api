@@ -14,17 +14,17 @@ def get_dates_month_period(date):
         if end_month > 12:
             end_month = end_month % 12
         
-        end_date = dt.datetime(end_year, end_month, 24)
+        end_date = dt.datetime(end_year, end_month, 24, 23, 59, 59)
 
         return start_date, end_date
     else:
         if today.month == 1:
             start_date = dt.datetime(today.year - 1, 12, 25)
-            end_date = dt.datetime(today.year, today.month, 24)
+            end_date = dt.datetime(today.year, today.month, 24, 23, 59, 59)
             return start_date, end_date
         else:
             start_date = dt.datetime(today.year, today.month - 1, 25)
-            end_date = dt.datetime(today.year, today.month, 24)
+            end_date = dt.datetime(today.year, today.month, 24, 23, 59, 59)
             return start_date, end_date
 
         
