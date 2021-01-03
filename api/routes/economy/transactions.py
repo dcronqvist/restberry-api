@@ -11,134 +11,109 @@ from bson.objectid import ObjectId
 from db import coll_accounts, coll_trans, stringify_ids
 from api.routes.economy import get_dates_month_period
 
+"""
+DONE
+GET /v1/economy/transactions?startDate=1023..&endDate=1415..
+GET /v1/economy/transactions?id=908da84j2n76uc7sh4&id=74h289f923kv8n4d90j7g
+GET /v1/economy/transactions?toAccount=401&startDate=1023..&endDate=1415..
+GET /v1/economy/transactions?fromAccount=101&startDate=1023..&endDate=1415..
+GET /v1/economy/transactions?toAccount=401&fromAccount=101&startDate=1023..&endDate=1415..
+POST /v1/economy/transactions
+PUT /v1/economy/transactions?id=908da84j2n76uc7sh4
+DELETE /v1/economy/transactions?id=908da84j2n76uc7sh4
+"""
 
-get_transactions_to_from_account_sample = {
-    "account": {
-        "required": True,
-        "allowed_types": [int]  # Account ID
-    },
-    "from_date": {
-        "required": False,
-        "allowed_types": [int]  # UNIX Timestamp
-    },
-    "to_date": {
-        "required": False,
-        "allowed_types": [int]  # UNIX Timestamp
+@app.route("/v1/economy/transactions", methods=["GET"])
+@privilege_required("economy")
+def get_economy_transactions():
+    sample_args_1 = {
+        "startDate": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "endDate": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "toAccount": {
+            "required": False,
+            "allowed_types": [str]
+        },
+        "fromAccount": {
+            "required": False,
+            "allowed_types": [str]
+        }
     }
-}
-
-@app.route("/econ/transactions/fromaccount", methods=["POST"])
-def get_transactions_from_account():
-    """
-    Returns all transactions that come FROM the specified account, within optional specified dates.
-
-    Expected Payload (example):
-    {
-        "account": 46,
-        "from_date": 160929120, # optional
-        "to_date": 1610000120, # optional
+    sample_args_2 = {
+        "id": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
+        }
     }
-    """
-    query = request.get_json()
     username = auth.username()
-    succ, errors = check(get_transactions_to_from_account_sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
-    if "from_date" not in query and "to_date" not in query:
-        transactions = coll_trans.find({"from_account": query["account"], "user": username}, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "from_date" in query and "to_date" not in query:
-        transactions = coll_trans.find({"from_account": query["account"], "user": username, "date_trans": { "$gte": query["from_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "to_date" in query and "from_date" not in query:
-        transactions = coll_trans.find({"from_account": query["account"], "user": username, "date_trans": { "$lte": query["to_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "to_date" in query and "from_date" in query:
-        transactions = coll_trans.find({"from_account": query["account"], "user": username, "date_trans": { "$lte": query["to_date"], "$gte": query["from_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
+    args1 = request.args.to_dict(flat=True)
+    succ1, errors1 = check(sample_args_1, args1)
+    args2 = request.args.to_dict(flat=False)
+    succ2, errors2 = check(sample_args_2, args2)
+    if not succ1 and not succ2:
+        return make_response(jsonify(errors1 + errors2), 400)
+    elif succ2 and not succ1:
+        l = [x for x in args2["id"] if len(x) == 24]
+        transactions = coll_trans.find({"user": username, "_id": { "$in": [ObjectId(i) for i in l]}})
+        transactions = stringify_ids(list(transactions))
+        return make_response(jsonify(transactions), 200)
+    elif succ1 and not succ2:
+        find_query = {
+            "user": username,
+            "date_trans": {
+                "$gte": int(args1["startDate"]),
+                "$lte": int(args1["endDate"])
+            }
+        }
+
+        if "toAccount" in args1:
+            find_query["to_account"] = int(args1["toAccount"])
+        if "fromAccount" in args1:
+            find_query["from_account"] = int(args1["fromAccount"])
+
+        transactions = coll_trans.find(find_query)
+        transactions = stringify_ids(list(transactions))
+        return make_response(jsonify(transactions), 200)
+    elif succ1 and succ2:
+        return make_response(jsonify(["ERROR: You may not specify a transaction id if retrieving using dates and accounts."]), 400)
 
 
-@app.route("/econ/transactions/toaccount", methods=["POST"])
-def get_transactions_to_account():
-    """
-    Returns all transactions that go TO the specified account, within optional specified dates.
-
-    Expected Payload (example):
-    {
-        "account": 21,
-        "from_date": 160929120, # optional
-        "to_date": 1610000120, # optional
+@app.route("/v1/economy/transactions", methods=["POST"])
+@privilege_required("economy")
+def post_economy_transactions():
+    sample = {
+        "amount": {
+            "required": True,
+            "allowed_types": [float, int]
+        },
+        "date_trans": {
+            "required": False,
+            "allowed_types": [int]
+        },
+        "desc": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "from_account": {
+            "required": True,
+            "allowed_types": [int]
+        },
+        "to_account": {
+            "required": True,
+            "allowed_types": [int]
+        }
     }
-    """
-    query = request.get_json()
     username = auth.username()
-    succ, errors = check(get_transactions_to_from_account_sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
-    if "from_date" not in query and "to_date" not in query:
-        transactions = coll_trans.find({"to_account": query["account"], "user": username}, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "from_date" in query and "to_date" not in query:
-        transactions = coll_trans.find({"to_account": query["account"], "user": username, "date_trans": { "$gte": query["from_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "to_date" in query and "from_date" not in query:
-        transactions = coll_trans.find({"to_account": query["account"], "user": username, "date_trans": { "$lte": query["to_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-    if "to_date" in query and "from_date" in query:
-        transactions = coll_trans.find({"to_account": query["account"], "user": username, "date_trans": { "$lte": query["to_date"], "$gte": query["from_date"] } }, {"_id": 0})
-        return make_response(jsonify(stringify_ids(list(transactions))), 200)
-
-
-post_transactions_between_dates_sample = {
-    "from_date": {
-        "required": True,
-        "allowed_types": [int]
-    },
-    "to_date": {
-        "required": True,
-        "allowed_types": [int]
-    }
-}
-
-@app.route("/econ/transactions/betweendates", methods=["POST"])
-def post_transactions_between_dates():
     query = request.get_json()
-    username = auth.username()
-    succ, errors = check(post_transactions_between_dates_sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
-    transactions = coll_trans.find({"user": username, "date_trans": { "$lte": query["to_date"], "$gte": query["from_date"] } })
-    transactions = stringify_ids(list(transactions))
-    return make_response(jsonify(list(transactions)), 200)
-
-post_create_transaction_sample = {
-    "amount": {
-        "required": True,
-        "allowed_types": [float, int]
-    },
-    "date_trans": {
-        "required": False,
-        "allowed_types": [int]
-    },
-    "desc": {
-        "required": True,
-        "allowed_types": [str]
-    },
-    "from_account": {
-        "required": True,
-        "allowed_types": [int]
-    },
-    "to_account": {
-        "required": True,
-        "allowed_types": [int]
-    }
-}
-
-@app.route("/econ/transactions/create", methods=["POST"])
-def post_create_transaction():
-    query = request.get_json()
-    username = auth.username()
-    succ, errors = check(post_create_transaction_sample, query)
+    succ, errors = check(sample, query)
     if not succ:
         return make_response(jsonify(errors), 400)
     # Check that both accounts exist.
@@ -148,66 +123,83 @@ def post_create_transaction():
         test = coll_accounts.find_one({"user": username, "number": acc})
         if not test:
             errors.append(f"ERROR: Account with number {acc} does not exist.")
-
     if len(errors) != 0:
         return make_response(jsonify(errors), 400)
     # Add date_reg and user
     query["date_reg"] = round(datetime.datetime.today().timestamp())
     query["user"] = username
-
     if "date_trans" not in query:
         query["date_trans"] = query["date_reg"]
-
     # return new transaction
     coll_trans.insert_one(query)
     query["_id"] = str(query["_id"])
     return make_response(jsonify(query), 200)
-
-
-get_transactions_month_period_sample = {
-    "date": {
-        "required": False,
-        "allowed_types": [int]
-    }
-}
-
-@app.route("/econ/transactions/period", methods=["POST"])
-def get_transactions_month_period():
-    query = request.get_json()
-    username = auth.username()
-    succ, errors = check(get_transactions_month_period_sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
-    if not "date" in query:
-        start, end = get_dates_month_period(datetime.datetime.today())
-        transactions = coll_trans.find({"user": username, "date_trans": { "$lte": end.timestamp(), "$gte": start.timestamp() } })
-        transactions = stringify_ids(list(transactions))
-        return make_response(jsonify(transactions), 200)
-    else:
-        start, end = get_dates_month_period(datetime.datetime.fromtimestamp(query["date"]))
-        transactions = coll_trans.find({"user": username, "date_trans": { "$lte": end.timestamp(), "$gte": start.timestamp() } })
-        transactions = stringify_ids(list(transactions))
-        return make_response(jsonify(transactions), 200)
-
-
-@app.route("/econ/transactions/delete/<string:_id>", methods=["DELETE"])
-def delete_transaction_by_id(_id):
-    username = auth.username()
-    test = coll_trans.find_one_and_delete({"user": username, "_id": ObjectId(_id) })
-    if test:
-        del test["_id"]
-        return make_response(jsonify(test), 200)
-    else:
-        return make_response(jsonify(["ERROR: No transaction was found with that ID."]), 400)
     
 
-@app.route("/econ/transactions/<int:year>/<int:month>", methods=["GET"])
-def get_get_transactions_in_month_year(year, month):
+@app.route("/v1/economy/transactions", methods=["PUT"])
+@privilege_required("economy")
+def put_economy_transactions():
+    sample_json = {
+        "amount": {
+            "required": False,
+            "allowed_types": [float, int]
+        },
+        "date_trans": {
+            "required": False,
+            "allowed_types": [int]
+        },
+        "desc": {
+            "required": False,
+            "allowed_types": [str]
+        },
+        "from_account": {
+            "required": False,
+            "allowed_types": [int]
+        },
+        "to_account": {
+            "required": False,
+            "allowed_types": [int]
+        }
+    }
+    sample_args = {
+        "id": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
     username = auth.username()
-    date = datetime.datetime(year, month, 1)
-    start, end = get_dates_month_period(date)
-    transactions = coll_trans.find({"user": username, "date_trans": { "$lte": end.timestamp(), "$gte": start.timestamp() } })
-    transactions = stringify_ids(list(transactions))
-    return make_response(jsonify(transactions), 200)
-        
+    query = request.get_json()
+    args = request.args.to_dict(flat=True)
+    succ, errors = check(sample_args, args)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    succ, errors = check(sample_json, query)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    filter_query = {
+        "user": username,
+        "_id": ObjectId(args["id"])
+    }
+    update_query = { "$set": dict() }
+    for key in query:
+        update_query["$set"][key] = query[key]
+    transaction = coll_trans.update_one(filter_query, update_query)
+    return make_response(jsonify(transaction.modified_count), 200)
 
+
+@app.route("/v1/economy/transactions", methods=["DELETE"])
+@privilege_required("economy")
+def delete_economy_transactions():
+    sample_args = {
+        "id": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
+    username = auth.username()
+    args = request.args.to_dict(flat=True)
+    succ, errors = check(sample_args, args)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    trans = coll_trans.delete_one({"user": username, "_id": ObjectId(args["id"])})
+    return make_response(jsonify(trans.deleted_count), 200)
