@@ -3,3 +3,5 @@ flask_httpauth
 flask_cors
 pymongo
 dnspython
+mcstatus
+mcrcon

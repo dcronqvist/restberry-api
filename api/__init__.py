@@ -36,7 +36,7 @@ def error(status):
 
 # Do nothing special before request, but make sure that the user is logged in
 @app.before_request
-@auth.login_required
+#@auth.login_required
 def before():
     pass
 
@@ -54,3 +54,4 @@ import api.routes.economy.accounts
 import api.routes.economy.transactions
 import api.routes.economy.periods
 import api.routes.endpoints
+import api.routes.minecraft
