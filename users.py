@@ -52,7 +52,7 @@ def add_privilege(username, priv):
     succ, user = find_user(username)
     if succ:
         query = {"username" : username}
-        newVal = {"$set" : { "privileges" : [priv.tolower()] + user["privileges"]}}
+        newVal = {"$set" : { "privileges" : [priv.lower()] + user["privileges"]}}
         db.users.update_one(query, newVal)
         succ, user = find_user(username)
         return True, user
