@@ -5,18 +5,17 @@ Check it out here [https://api.dcronqvist.se](https://api.dcronqvist.se)
 
 ## Endpoints
 
-There is a base endpoint of **/** which simply greets the user with a `Hello World!`.
-If no valid authorization is provided, then the user will be given a `401 UNAUTHORIZED ACCESS` error.
-*Cursive* words in endpoints mean parameters. These are usually strings or ints. Most endpoints have some required privileges which are given to a user by an administrator.
+There is a multitude of RESTful endpoints, which all required certain ***privileges***.
 
 ### All available privileges
 
 Privilege | Description
 ------------ | -------------
-ECON_OUT | Allows for viewing information from the economy outcome endpoints
-ECON_IN | Allows for viewing information from the economy income endpoints
-ECON_REG | Allows for registering incomes, outcomes and categories on the economy endpoints
-FOOD | Gives the user access to all food endpoints
+minecraft_command | Allows for viewing information from the economy outcome endpoints
+minecraft_whitelist | Allows for viewing information from the economy income endpoints
+economy_accounts | asdasdasdasd
+economy_periods | jhgjghjj
+economy_transactions | yugyg
 
 ### Endpoints
 

@@ -1,6 +1,6 @@
 import config
 import users
-from api import app, auth, privilege_required
+from api import app, privilege_required
 from flask import abort, make_response, jsonify, request, render_template
 import requests
 import datetime
@@ -29,7 +29,7 @@ DONE
 """
 
 @app.route("/v1/economy/periods/months", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_periods")
 def get_economy_periods_months():
     sample_args = {
         "year": {
@@ -45,14 +45,20 @@ def get_economy_periods_months():
             "list_element": {
                 "allowed_types": [str]
             }
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
         }
     }
-    username = auth.username()
     args = request.args.to_dict(flat=False)
     succ, errors = check(sample_args, args)
     if not succ:
         return make_response(jsonify(errors), 400)
-
+    username = query["username"][0]
     periods = []
     if "year" in args and len(args["year"]) > 0 and "month" in args and len(args["month"]) > 0:
         for year in args["year"]:
@@ -104,7 +110,7 @@ def get_economy_periods_months():
 
 
 @app.route("/v1/economy/periods/months/current", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_periods")
 def get_economy_periods_months_current():
     sample_args = {}
     args = request.args.to_dict()
@@ -125,7 +131,7 @@ def get_economy_periods_months_current():
 
 
 @app.route("/v1/economy/periods/years", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_periods")
 def get_economy_periods_years():
     sample_args = {
         "year": {
@@ -134,13 +140,20 @@ def get_economy_periods_years():
             "list_element": {
                 "allowed_types": [str]
             }
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
         }
     }
-    username = auth.username()
     args = request.args.to_dict(flat=False)
     succ, errors = check(sample_args, args)
     if not succ:
         return make_response(jsonify(errors), 400)
+    username = query["username"][0]
     first = coll_trans.find({"user": username}).sort("date_trans", pymongo.ASCENDING).limit(1).next()
     last = coll_trans.find({"user": username}).sort("date_trans", pymongo.DESCENDING).limit(1).next()
     first_date = datetime.datetime.fromtimestamp(first["date_trans"])
@@ -164,7 +177,7 @@ def get_economy_periods_years():
 
 
 @app.route("/v1/economy/periods/years/current", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_periods")
 def get_economy_periods_years_current():
     dt = datetime.datetime.today()
     start, end = get_dates_month_period(dt)

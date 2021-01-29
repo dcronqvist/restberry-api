@@ -1,5 +1,5 @@
 import config
-from api import app, auth, privilege_required
+from api import app, privilege_required
 from flask import make_response, jsonify, request, render_template
 from mcstatus import MinecraftServer
 from mcrcon import MCRcon
@@ -8,6 +8,7 @@ from pytechecker import check
 
 
 @app.route("/v1/minecraft/serverinfo")
+@privilege_required(None)
 def v1_minecraft_serverinfo():
     try: 
         server = MinecraftServer(config.get_setting('minecraft-server-host', '127.0.0.1'), config.get_setting('minecraft-server-port', 25565))

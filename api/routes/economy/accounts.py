@@ -1,6 +1,6 @@
 import config
 import users
-from api import app, auth, privilege_required
+from api import app, privilege_required
 from flask import abort, make_response, jsonify, request, render_template
 import requests
 import datetime
@@ -14,7 +14,7 @@ from db import coll_accounts, coll_trans
 # You will always get an array of accounts, even if you only specify one number.
 # curl "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
 @app.route("/v1/economy/accounts", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_accounts")
 def get_economy_accounts():
     sample = {
         "number": {
@@ -23,11 +23,18 @@ def get_economy_accounts():
             "list_element": {
                 "allowed_types": [str]
             }
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
         }
     }
-    username = auth.username()
     query = request.args.to_dict(flat=False)
     succ, errors = check(sample, query)
+    username = query["username"][0]
     if not succ:
         return make_response(jsonify(errors), 400)
     if "number" in query:
@@ -42,7 +49,7 @@ def get_economy_accounts():
 # Returns the new account, after creating it.
 # curl -X POST -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts"
 @app.route("/v1/economy/accounts", methods=["POST"])
-@privilege_required("economy")
+@privilege_required("economy_accounts")
 def post_economy_accounts():
     sample = {
         "number": {
@@ -58,11 +65,18 @@ def post_economy_accounts():
             "allowed_types": [str]
         }
     }
-    username = auth.username()
+    sample_args = {
+        "username": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
+    args = request.args.to_dict(flat=True)
     query = request.get_json()
-    succ, errors = check(sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
+    succ1, errors1 = check(sample, args)
+    succ2, errors2 = check(sample, query)
+    if not succ1 or not succ2:
+        return make_response(jsonify(errors1 + errors2), 400)
     query["user"] = username
     test = coll_accounts.find_one({"number": query["number"]}, {"_id": 0})
     if test:
@@ -77,7 +91,7 @@ def post_economy_accounts():
 # Returns the new account, after updating it.
 # curl -X PUT -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
 @app.route("/v1/economy/accounts", methods=["PUT"])
-@privilege_required("economy")
+@privilege_required("economy_accounts")
 def put_economy_accounts():
     sample_json = {
         "number": {
@@ -97,20 +111,22 @@ def put_economy_accounts():
         "number": {
             "required": True,
             "allowed_types": [str]
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [str]
         }
     }
     args = request.args.to_dict(flat=True)
     query = request.get_json()
-    username = auth.username()
     # Check args
-    succ, errors = check(sample_args, args)
-    if not succ:
-        return make_response(jsonify(errors), 400)
+    succ1, errors1 = check(sample_args, args)
     # Check query
-    succ, errors = check(sample_json, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
+    succ2, errors2 = check(sample_json, query)
+    if not succ1 or not succ2:
+        return make_response(jsonify(errors1 + errors2), 400)
     num = 0
+    username = query["username"]
     try:
         num = int(args["number"])
     except:
@@ -128,7 +144,7 @@ def put_economy_accounts():
 # Returns the amount of accounts that were deleted.    
 # curl -X DELETE "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
 @app.route("/v1/economy/accounts", methods=["DELETE"])
-@privilege_required("economy")
+@privilege_required("economy_accounts")
 def delete_economy_accounts():
     sample = {
         "number": {
@@ -137,12 +153,19 @@ def delete_economy_accounts():
             "list_element": {
                 "allowed_types": [str]
             }
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
         }
     }
     args = request.args.to_dict(flat=False)
-    username = auth.username()
     succ, errors = check(sample, args)
     if not succ:
         return make_response(jsonify(errors), 400)
+    username = query["username"][0]
     x = coll_accounts.delete_many({"number": { "$in": [int(i) for i in args["number"]] }, "user": username})
     return make_response(jsonify(x.deleted_count), 200)

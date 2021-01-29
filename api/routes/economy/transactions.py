@@ -1,6 +1,6 @@
 import config
 import users
-from api import app, auth, privilege_required
+from api import app, privilege_required
 from flask import abort, make_response, jsonify, request, render_template
 import requests
 import datetime
@@ -24,7 +24,7 @@ DELETE /v1/economy/transactions?id=908da84j2n76uc7sh4
 """
 
 @app.route("/v1/economy/transactions", methods=["GET"])
-@privilege_required("economy")
+@privilege_required("economy_transactions")
 def get_economy_transactions():
     sample_args_1 = {
         "startDate": {
@@ -42,6 +42,10 @@ def get_economy_transactions():
         "fromAccount": {
             "required": False,
             "allowed_types": [str]
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [str]
         }
     }
     sample_args_2 = {
@@ -51,9 +55,15 @@ def get_economy_transactions():
             "list_element": {
                 "allowed_types": [str]
             }
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [list],
+            "list_element": {
+                "allowed_types": [str]
+            }
         }
     }
-    username = auth.username()
     args1 = request.args.to_dict(flat=True)
     succ1, errors1 = check(sample_args_1, args1)
     args2 = request.args.to_dict(flat=False)
@@ -61,11 +71,13 @@ def get_economy_transactions():
     if not succ1 and not succ2:
         return make_response(jsonify(errors1 + errors2), 400)
     elif succ2 and not succ1:
+        username = args2["username"][0]
         l = [x for x in args2["id"] if len(x) == 24]
         transactions = coll_trans.find({"user": username, "_id": { "$in": [ObjectId(i) for i in l]}})
         transactions = stringify_ids(list(transactions))
         return make_response(jsonify(transactions), 200)
     elif succ1 and not succ2:
+        username = args1["username"]
         find_query = {
             "user": username,
             "date_trans": {
@@ -87,7 +99,7 @@ def get_economy_transactions():
 
 
 @app.route("/v1/economy/transactions", methods=["POST"])
-@privilege_required("economy")
+@privilege_required("economy_transactions")
 def post_economy_transactions():
     sample = {
         "amount": {
@@ -111,11 +123,19 @@ def post_economy_transactions():
             "allowed_types": [int]
         }
     }
-    username = auth.username()
+    sample_args = {
+        "username": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
     query = request.get_json()
-    succ, errors = check(sample, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
+    args = request.args.to_dict(flat=True)
+    succ1, errors1 = check(sample, query)
+    succ2, errors2 = check(sample_args, args)
+    if not succ1 or not succ2:
+        return make_response(jsonify(erorrs1 + errors2), 400)
+    username = args["username"]
     # Check that both accounts exist.
     accs = [query["from_account"], query["to_account"]]
     errors = []
@@ -137,7 +157,7 @@ def post_economy_transactions():
     
 
 @app.route("/v1/economy/transactions", methods=["PUT"])
-@privilege_required("economy")
+@privilege_required("economy_transactions")
 def put_economy_transactions():
     sample_json = {
         "amount": {
@@ -165,17 +185,19 @@ def put_economy_transactions():
         "id": {
             "required": True,
             "allowed_types": [str]
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [str]
         }
     }
-    username = auth.username()
     query = request.get_json()
     args = request.args.to_dict(flat=True)
-    succ, errors = check(sample_args, args)
-    if not succ:
-        return make_response(jsonify(errors), 400)
-    succ, errors = check(sample_json, query)
-    if not succ:
-        return make_response(jsonify(errors), 400)
+    succ1, errors1 = check(sample_args, args)
+    succ2, errors2 = check(sample_json, query)
+    if not succ1 or not succ2:
+        return make_response(jsonify(errors1 + errors2), 400)
+    username = args["username"]
     filter_query = {
         "user": username,
         "_id": ObjectId(args["id"])
@@ -188,18 +210,22 @@ def put_economy_transactions():
 
 
 @app.route("/v1/economy/transactions", methods=["DELETE"])
-@privilege_required("economy")
+@privilege_required("economy_transactions")
 def delete_economy_transactions():
     sample_args = {
         "id": {
             "required": True,
             "allowed_types": [str]
+        },
+        "username": {
+            "required": True,
+            "allowed_types": [str]
         }
     }
-    username = auth.username()
     args = request.args.to_dict(flat=True)
     succ, errors = check(sample_args, args)
     if not succ:
         return make_response(jsonify(errors), 400)
+    username = args["username"]
     trans = coll_trans.delete_one({"user": username, "_id": ObjectId(args["id"])})
     return make_response(jsonify(trans.deleted_count), 200)
