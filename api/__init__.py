@@ -26,7 +26,7 @@ def privilege_required(privilege):
 
 @app.before_request
 def before():
-	if "users/login" not in request.url and "endpoints" not in request.url:
+	if "users/login" not in request.url and "endpoints" not in request.url and "minecraft/serverinfo" not in request.url:
 		d = request.args.to_dict(flat=True)
 		if "token" in d and "username" in d:
 			# Validate token
