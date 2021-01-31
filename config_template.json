@@ -5,5 +5,6 @@
     "minecraft-server-host": "serverip.or.hostname",
     "minecraft-server-port": 25565,
     "minecraft-server-password": "password",
-    "minecraft-server-rcon-port": 25575
+    "minecraft-server-rcon-port": 25575,
+    "listen-port": 5251
 }
