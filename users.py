@@ -24,7 +24,8 @@ def add_user(username, password):
     user = {
         "username" : username,
         "password" : password,
-        "privileges" : []
+        "privileges" : [],
+        "tokens": []
     }
     db.users.insert_one(user)
     return True, user
