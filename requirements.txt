@@ -5,3 +5,4 @@ pymongo
 dnspython
 mcstatus
 mcrcon
+pytechecker >= 1.0.1
