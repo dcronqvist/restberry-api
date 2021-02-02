@@ -28,8 +28,8 @@ DONE
 /v1/economy/periods/years/current
 """
 
-@app.route("/v1/economy/periods/months", methods=["GET"])
 @privilege_required("economy_periods")
+@app.route("/v1/economy/periods/months", methods=["GET"])
 def get_economy_periods_months():
     sample_args = {
         "year": {
@@ -55,10 +55,10 @@ def get_economy_periods_months():
         }
     }
     args = request.args.to_dict(flat=False)
-    succ, errors = check(sample_args, args)
+    succ, errors = check(sample_args, args, allow_overflow=True)
     if not succ:
         return make_response(jsonify(errors), 400)
-    username = query["username"][0]
+    username = args["username"][0]
     periods = []
     if "year" in args and len(args["year"]) > 0 and "month" in args and len(args["month"]) > 0:
         for year in args["year"]:
@@ -109,8 +109,8 @@ def get_economy_periods_months():
     return make_response(jsonify(periods), 200)
 
 
-@app.route("/v1/economy/periods/months/current", methods=["GET"])
 @privilege_required("economy_periods")
+@app.route("/v1/economy/periods/months/current", methods=["GET"])
 def get_economy_periods_months_current():
     sample_args = {}
     args = request.args.to_dict()
@@ -130,8 +130,8 @@ def get_economy_periods_months_current():
     return make_response(jsonify(period), 200)
 
 
-@app.route("/v1/economy/periods/years", methods=["GET"])
 @privilege_required("economy_periods")
+@app.route("/v1/economy/periods/years", methods=["GET"])
 def get_economy_periods_years():
     sample_args = {
         "year": {
@@ -175,9 +175,8 @@ def get_economy_periods_years():
         periods = [period for period in periods if str(period["year"]) in args["year"]]
     return make_response(jsonify(periods), 200)
 
-
-@app.route("/v1/economy/periods/years/current", methods=["GET"])
 @privilege_required("economy_periods")
+@app.route("/v1/economy/periods/years/current", methods=["GET"])
 def get_economy_periods_years_current():
     dt = datetime.datetime.today()
     start, end = get_dates_month_period(dt)
@@ -192,5 +191,4 @@ def get_economy_periods_years_current():
         "end_timestamp": end.timestamp(),
         "year": end.year
     }
-
     return make_response(jsonify(period), 200)

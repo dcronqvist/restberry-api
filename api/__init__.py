@@ -13,7 +13,29 @@ def privilege_required(privilege):
 	def decorator(func):
 		def wrapper(*args, **kwargs):
 			if privilege:
-				working_user = request.args["username"]
+				sample = {
+					"token": {
+						"required": True,
+						"allowed_types": [str]
+					},
+					"username": {
+						"required": True,
+						"allowed_types": [str]
+					}
+				}
+				args = request.args.to_dict(flat=True)
+				succ, errors = check(sample, args)
+				if not succ:
+					return make_response(jsonify(["ERROR: Missing token and/or username url parameter."]), 401)
+
+				succ, tokens = users.validate_token_for_user(args["username"], args["token"])	
+				if not succ:
+					return make_response(jsonify(["ERROR: Expired or invalid token."]), 401)
+
+				del args["token"]
+				print(args)
+				request.args = ImmutableMultiDict(args)
+				working_user = args["username"]
 				if users.has_privilege(working_user, privilege.lower()):
 					return func(*args, **kwargs)
 				else:
@@ -23,31 +45,6 @@ def privilege_required(privilege):
 		wrapper.__name__ = func.__name__
 		return wrapper
 	return decorator
-
-@app.before_request
-def before():
-	if "users/login" not in request.url and "endpoints" not in request.url and "minecraft/serverinfo" not in request.url:
-		d = request.args.to_dict(flat=True)
-		if "token" in d and "username" in d:
-			# Validate token
-			succ, tokens = users.validate_token_for_user(d["username"], d["token"])	
-			if not succ:
-				return make_response(jsonify(["ERROR: Expired or invalid token."]), 401)
-			del d["token"]
-			request.args = ImmutableMultiDict(d)
-		else:
-			sample = {
-				"token": {
-					"required": True,
-					"allowed_types": [str]
-				},
-				"username": {
-					"required": True,
-					"allowed_types": [str]
-				}
-			}
-			succ, errors = check(sample, d)
-			return make_response(jsonify(errors), 401)
 		
 
 # Send the response in an appropriate format
@@ -59,6 +56,10 @@ def after(response):
 		"response": response.get_json()
 	}
 	return make_response(jsonify(ret), ret["status_code"])
+
+@app.route("/")
+def base():
+	return make_response(jsonify(config.get_setting("greet-home", "Hello World!")), 200)
 
 import api.routes.economy.accounts
 import api.routes.economy.transactions

@@ -16,6 +16,7 @@ POST { username: "dani", password: "pass" } /v1/users/login -> 200, { token: "ab
 """
 
 @app.route("/v1/users/login", methods=["POST"])
+@privilege_required(None)
 def v1_users_login():
     sample = {
         "username": {

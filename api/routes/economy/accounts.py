@@ -13,8 +13,8 @@ from db import coll_accounts, coll_trans
 # If you, however, specify one or more numbers, like this ?number=599&number=244, you'll get all the ones you specified.
 # You will always get an array of accounts, even if you only specify one number.
 # curl "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
-@app.route("/v1/economy/accounts", methods=["GET"])
 @privilege_required("economy_accounts")
+@app.route("/v1/economy/accounts", methods=["GET"])
 def get_economy_accounts():
     sample = {
         "number": {
@@ -48,8 +48,8 @@ def get_economy_accounts():
 # Expects nothing in the query string.
 # Returns the new account, after creating it.
 # curl -X POST -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts"
-@app.route("/v1/economy/accounts", methods=["POST"])
 @privilege_required("economy_accounts")
+@app.route("/v1/economy/accounts", methods=["POST"])
 def post_economy_accounts():
     sample = {
         "number": {
@@ -90,8 +90,8 @@ def post_economy_accounts():
 # Expects only one number=x in the query string.
 # Returns the new account, after updating it.
 # curl -X PUT -H "Content-Type: application/json" -d '{ "number": 599, "name": "Testing account", "desc": "Account used for testing purposes." }' "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
-@app.route("/v1/economy/accounts", methods=["PUT"])
 @privilege_required("economy_accounts")
+@app.route("/v1/economy/accounts", methods=["PUT"])
 def put_economy_accounts():
     sample_json = {
         "number": {
@@ -143,8 +143,8 @@ def put_economy_accounts():
 # Expects at least one num=x in the query string, you can specify multiple.
 # Returns the amount of accounts that were deleted.    
 # curl -X DELETE "user:pass@127.0.0.1:5000/v1/economy/accounts?number=599"
-@app.route("/v1/economy/accounts", methods=["DELETE"])
 @privilege_required("economy_accounts")
+@app.route("/v1/economy/accounts", methods=["DELETE"])
 def delete_economy_accounts():
     sample = {
         "number": {

@@ -23,8 +23,8 @@ PUT /v1/economy/transactions?id=908da84j2n76uc7sh4
 DELETE /v1/economy/transactions?id=908da84j2n76uc7sh4
 """
 
-@app.route("/v1/economy/transactions", methods=["GET"])
 @privilege_required("economy_transactions")
+@app.route("/v1/economy/transactions", methods=["GET"])
 def get_economy_transactions():
     sample_args_1 = {
         "startDate": {
@@ -98,8 +98,8 @@ def get_economy_transactions():
         return make_response(jsonify(["ERROR: You may not specify a transaction id if retrieving using dates and accounts."]), 400)
 
 
-@app.route("/v1/economy/transactions", methods=["POST"])
 @privilege_required("economy_transactions")
+@app.route("/v1/economy/transactions", methods=["POST"])
 def post_economy_transactions():
     sample = {
         "amount": {
@@ -156,8 +156,8 @@ def post_economy_transactions():
     return make_response(jsonify(query), 200)
     
 
-@app.route("/v1/economy/transactions", methods=["PUT"])
 @privilege_required("economy_transactions")
+@app.route("/v1/economy/transactions", methods=["PUT"])
 def put_economy_transactions():
     sample_json = {
         "amount": {
@@ -209,8 +209,8 @@ def put_economy_transactions():
     return make_response(jsonify(transaction.modified_count), 200)
 
 
-@app.route("/v1/economy/transactions", methods=["DELETE"])
 @privilege_required("economy_transactions")
+@app.route("/v1/economy/transactions", methods=["DELETE"])
 def delete_economy_transactions():
     sample_args = {
         "id": {

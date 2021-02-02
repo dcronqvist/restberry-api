@@ -19,13 +19,13 @@ def find_endpoints(s):
     return sorted([route for route in get_all_endpoints() if s in route])
         
 # API Endpoint for all available endpoints
-@app.route("/endpoints/all")
 @privilege_required(None)
+@app.route("/endpoints/all")
 def api_get_all_endpoints():
     return make_response(jsonify(get_all_endpoints()), 200)
 
 # API Endpoint for searching endpoint
-@app.route("/endpoints/search/<string:search>")
 @privilege_required(None)
+@app.route("/endpoints/search/<string:search>")
 def api_find_endpoints(search):
     return make_response(jsonify(find_endpoints(search)), 200)
