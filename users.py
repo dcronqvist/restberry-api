@@ -79,7 +79,7 @@ def get_all_tokens_for_user(username):
 
 def validate_token_for_user(username, token):
     # tokens are valid for 30 minutes
-    token_timeout = 30 * 60
+    token_timeout = config.get_setting("token-lifetime-minutes", 30) * 60
     succ, tokens = get_all_tokens_for_user(username)
     if succ:
         check = [tokenobj for tokenobj in tokens if ((tokenobj["created"] + token_timeout) > datetime.datetime.now().timestamp()) and (tokenobj["token"] == token)]
