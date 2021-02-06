@@ -37,3 +37,26 @@ def v1_users_login():
         return make_response(jsonify(token), 200)
     else:
         return make_response(jsonify(["ERROR: Invalid login credentials."]), 401)
+
+@app.route("/v1/users/checktoken", methods=["POST"])
+@privilege_required(None)
+def v1_users_checktoken():
+    sample = {
+        "username": {
+            "required": True,
+            "allowed_types": [str]
+        },
+        "token": {
+            "required": True,
+            "allowed_types": [str]
+        }
+    }
+    query = request.get_json()
+    succ, errors = check(sample, query)
+    if not succ:
+        return make_response(jsonify(errors), 400)
+    succ, tokens = users.validate_token_for_user(query["username"], query["token"])
+    if not succ:
+        return make_response(jsonify(["ERROR: Invalid token for user."]), 401)
+    else:
+        return make_response(jsonify(query["token"]), 200)
