@@ -33,7 +33,7 @@ def v1_users_login():
     if not succ:
         return make_response(jsonify(errors), 400)
     if users.validate_user(query["username"], query["password"]):
-        token = users.create_token_for_user(query["username"])
+        succ, token = users.create_token_for_user(query["username"])
         return make_response(jsonify(token), 200)
     else:
         return make_response(jsonify(["ERROR: Invalid login credentials."]), 401)
