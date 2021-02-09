@@ -24,24 +24,22 @@ def privilege_required(privilege):
 					}
 				}
 				args = request.args.to_dict(flat=True)
-				succ, errors = check(sample, args)
+				succ, errors = check(sample, args, allow_overflow=True)
 				if not succ:
 					return make_response(jsonify(["ERROR: Missing token and/or username url parameter."]), 401)
-
 				succ, tokens = users.validate_token_for_user(args["username"], args["token"])	
 				if not succ:
 					return make_response(jsonify(["ERROR: Expired or invalid token."]), 401)
-
 				del args["token"]
 				print(args)
 				request.args = ImmutableMultiDict(args)
 				working_user = args["username"]
 				if users.has_privilege(working_user, privilege.lower()):
-					return func(*args, **kwargs)
+					return func()
 				else:
 					return make_response(jsonify([f"ERROR: Insufficient privileges, resource requires '{privilege.lower()}' for access."]), 403)
 			else:
-				return func(*args, **kwargs)
+				return func()
 		wrapper.__name__ = func.__name__
 		return wrapper
 	return decorator

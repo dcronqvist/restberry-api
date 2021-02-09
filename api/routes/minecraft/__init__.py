@@ -7,8 +7,8 @@ import requests
 from pytechecker import check
 
 
-@privilege_required(None)
 @app.route("/v1/minecraft/serverinfo")
+@privilege_required(None)
 def v1_minecraft_serverinfo():
     try: 
         server = MinecraftServer(config.get_setting('minecraft-server-host', '127.0.0.1'), config.get_setting('minecraft-server-port', 25565))
@@ -25,8 +25,8 @@ def v1_minecraft_serverinfo():
         return make_response(jsonify(["ERROR: The specified server is not online."]), 500)
 
 
-@privilege_required("minecraft_command")
 @app.route("/v1/minecraft/command")
+@privilege_required("minecraft_command")
 def v1_minecraft_command():
     sample = {
         "cmd": {
@@ -47,8 +47,8 @@ def v1_minecraft_command():
         return make_response(jsonify(resp), 200)
 
 
-@privilege_required("minecraft_whitelist")
 @app.route("/v1/minecraft/whitelist")
+@privilege_required("minecraft_whitelist")
 def v1_minecraft_whitelist():
     sample = {
         "add": {

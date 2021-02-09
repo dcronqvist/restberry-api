@@ -28,8 +28,8 @@ DONE
 /v1/economy/periods/years/current
 """
 
-@privilege_required("economy_periods")
 @app.route("/v1/economy/periods/months", methods=["GET"])
+@privilege_required("economy_periods")
 def get_economy_periods_months():
     sample_args = {
         "year": {
@@ -109,8 +109,8 @@ def get_economy_periods_months():
     return make_response(jsonify(periods), 200)
 
 
-@privilege_required("economy_periods")
 @app.route("/v1/economy/periods/months/current", methods=["GET"])
+@privilege_required("economy_periods")
 def get_economy_periods_months_current():
     sample_args = {}
     args = request.args.to_dict()
@@ -130,8 +130,8 @@ def get_economy_periods_months_current():
     return make_response(jsonify(period), 200)
 
 
-@privilege_required("economy_periods")
 @app.route("/v1/economy/periods/years", methods=["GET"])
+@privilege_required("economy_periods")
 def get_economy_periods_years():
     sample_args = {
         "year": {
@@ -175,8 +175,8 @@ def get_economy_periods_years():
         periods = [period for period in periods if str(period["year"]) in args["year"]]
     return make_response(jsonify(periods), 200)
 
-@privilege_required("economy_periods")
 @app.route("/v1/economy/periods/years/current", methods=["GET"])
+@privilege_required("economy_periods")
 def get_economy_periods_years_current():
     dt = datetime.datetime.today()
     start, end = get_dates_month_period(dt)
