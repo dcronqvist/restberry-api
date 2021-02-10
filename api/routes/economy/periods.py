@@ -112,11 +112,6 @@ def get_economy_periods_months():
 @app.route("/v1/economy/periods/months/current", methods=["GET"])
 @privilege_required("economy_periods")
 def get_economy_periods_months_current():
-    sample_args = {}
-    args = request.args.to_dict()
-    succ, errors = check(sample_args, args)
-    if not succ:
-        return make_response(jsonify(errors), 400)
     d = datetime.datetime.today()
     start, end = get_dates_month_period(d)
     period = {
