@@ -96,6 +96,8 @@ def get_economy_transactions():
         return make_response(jsonify(transactions), 200)
     elif succ1 and succ2:
         return make_response(jsonify(["ERROR: You may not specify a transaction id if retrieving using dates and accounts."]), 400)
+    else:
+        return make_response(jsonify(errors1 + errors2), 400)
 
 
 @app.route("/v1/economy/transactions", methods=["POST"])
