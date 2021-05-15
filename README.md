@@ -28,22 +28,22 @@ URL | HTTP Method | Privileges | Returns
 
 ### Economy
 
-All endpoints which allow access to the personal finance part of this API. In the following endpoints, all URL parameters which are followed by `[]` can be specified multiple times in order to specify multiple of whatever the specific endpoint retrieves. All URL parameters which are followed by a `?` is considered optional and will usually make the specific endpoint return all possible values instead of any specific value.
+All endpoints which allow access to the personal finance part of this API. In the following endpoints, all URL parameters which are followed by `[]` can be specified multiple times in order to specify multiple of whatever the specific endpoint retrieves. All URL parameters which are followed by a `?` is considered optional and will usually make the specific endpoint return all possible values instead of any specific value. To see what payloads are expected by `POST` & `PUT` endpoints, click the `POST` & `PUT` links on the respective table row.
 
-URL | URL Parameters | POST Payload | HTTP Method | Privileges | Returns/Performs
------------- | ------------- | ------------- |------------- | ---------- | --
-/v1/economy/accounts | number[]? | | GET | `economy_accounts` | List of all accounts whose numbers were specified, or all of them if not specified at all
-/v1/economy/accounts | | [accounts_payload](#post-&-put-/v1/economy/accounts) | POST | `economy_accounts` | Creates a new account with the specified details
-/v1/economy/accounts | | [accounts_payload](#post-&-put-/v1/economy/accounts) | PUT | `economy_accounts` | Updates an existing account with new details
-/v1/economy/accounts | number[] | | DELETE | `economy_accounts` | Deletes/removes the specified account(s)
-/v1/economy/periods/months | year[]?, month[] | | GET | `economy_periods` | Retrieves the specified period(s)
-/v1/economy/periods/months/current | | | GET | `economy_periods` | Retrieves the current period
-/v1/economy/periods/years | year[]? | | GET | `economy_periods` | Retrieves all month peiods in the specified year(s)
-/v1/economy/periods/years/current | | | GET | `economy_periods` | Retrieves all month periods in the current year
-/v1/economy/transactions | id[]? or startDate, endDate, toAccount?, fromAccount? | | GET | `economy_transactions` | Retrieves the specified transaction(s)
-/v1/economy/transactions | | [transactions_payload](#post-/v1/economy/transactions) | POST | Registers a new transactions with the specified details
-/v1/economy/transactions | id | [transactions_payload](#put-/v1/economy/transactions) | PUT | Updates the specified transactions with the specified details
-/v1/economy/transactions | id | | DELETE | Deletes/removes the specified transaction
+URL | URL Parameters | HTTP Method | Privileges | Returns/Performs
+------------ | ------------- |------------- | ---------- | --
+/v1/economy/accounts | number[]? | GET | `economy_accounts` | List of all accounts whose numbers were specified, or all of them if not specified at all
+/v1/economy/accounts | | [POST](#post-&-put-/v1/economy/accounts) | `economy_accounts` | Creates a new account with the specified details
+/v1/economy/accounts | | [PUT](#post-&-put-/v1/economy/accounts) | `economy_accounts` | Updates an existing account with new details
+/v1/economy/accounts | number[] | DELETE | `economy_accounts` | Deletes/removes the specified account(s)
+/v1/economy/periods/months | year[]?, month[] | GET | `economy_periods` | Retrieves the specified period(s)
+/v1/economy/periods/months/current | | GET | `economy_periods` | Retrieves the current period
+/v1/economy/periods/years | year[]? | GET | `economy_periods` | Retrieves all month peiods in the specified year(s)
+/v1/economy/periods/years/current | | GET | `economy_periods` | Retrieves all month periods in the current year
+/v1/economy/transactions | id[]? or startDate, endDate, toAccount?, fromAccount? | GET | `economy_transactions` | Retrieves the specified transaction(s)
+/v1/economy/transactions | | [POST](#post-/v1/economy/transactions) | `economy_transactions` | Registers a new transactions with the specified details
+/v1/economy/transactions | id | [PUT](#put-/v1/economy/transactions) | `economy_transactions` | Updates the specified transactions with the specified details
+/v1/economy/transactions | id | DELETE | `economy_transactions` | Deletes/removes the specified transaction
 
 ### Food
 
