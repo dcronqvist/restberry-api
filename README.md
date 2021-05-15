@@ -11,38 +11,39 @@ There is a multitude of RESTful endpoints, which all required certain ***privile
 
 Privilege | Description
 ------------ | -------------
-minecraft_command | Allows for viewing information from the economy outcome endpoints
-minecraft_whitelist | Allows for viewing information from the economy income endpoints
-economy_accounts | asdasdasdasd
-economy_periods | jhgjghjj
-economy_transactions | yugyg
+minecraft_command | Allows for performing any RCON command on the connected minecraft server
+minecraft_whitelist | Allows the user to manage the whitelist of the connected minecraft server
+economy_accounts | Allows access to all endpoints regarding economy accounts
+economy_periods | Allows access to all economy periods endpoints
+economy_transactions | Allows access to register and view economy transactions
 
 ### Endpoints
 
-These are endpoints which serve as a way to find all available endpoints of the API in a list. I use these as a way to quickly
-test new endpoints from my Siri Shortcuts.
+These are endpoints which serve as a way to find all available endpoints of the API in a list. I use these as a way to quickly test new endpoints from my Siri Shortcuts.
 
 URL | HTTP Method | Privileges | Returns
 ------------ | ------------- | ------------- |-------------
-/endps/all | GET | None | Returns all available endpoints
-/endps/search/*string* | GET | None | Returns all endpoints which contains the search term
+/endpoints/all | GET | None | Returns all available endpoints
+/endpoints/search/*string* | GET | None | Returns all endpoints which contains the search term
 
 ### Economy
 
-All of these endpoints are tied to my personal finance management spreadsheet. If you need help with Excel, hmu.
+All endpoints which allow access to the personal finance part of this API. In the following endpoints, all URL parameters which are followed by `[]` can be specified multiple times in order to specify multiple of whatever the specific endpoint retrieves. All URL parameters which are followed by a `?` is considered optional and will usually make the specific endpoint return all possible values instead of any specific value.
 
-URL | HTTP Method | Privileges | Returns
------------- | ------------- | ------------- |-------------
-/econ/outcomes/month | GET | ECON_OUT | Returns this month's outcome result, balance and budget
-/econ/outcomes/month/*category* | GET | ECON_OUT | Returns this month's result, balance, budget and average for specific category
-/econ/outcomes/categories/findall | GET | ECON_OUT | Returns all available categories for outcomes
-/econ/outcomes/categories/guess/*amount* | GET | ECON_OUT | Returns a list of categories that the specified amount might be registered as
-/econ/outcomes/categories/search/*category* | GET | ECON_OUT | Returns a list of categories that match the specified search string
-/econ/outcomes/categories/register/*category* | GET | ECON_REG | Registers a new category to be used for outcomes
-/econ/outcomes/register | POST | ECON_REG | Registers the specified outcome to the spreadsheet. Expects payload of format: `{"date:" "short-iso", "category": "yup", "description": "yadda", "amount": 1337}`.
-/econ/incomes/month | GET | ECON_IN | Returns this month's income result, balance and budget
-/econ/incomes/categories/findall | GET | ECON_IN | Returns all available categories for incomes
-/econ/incomes/register | POST | ECON_REG | Registers the specified income to the spreadsheet. Expects payload of format: `{"date:" "short-iso", "category": "yup", "description": "yadda", "amount": 1337}`.
+URL | URL Parameters | POST Payload | HTTP Method | Privileges | Returns
+------------ | ------------- | ------------- |------------- | ---------- | --
+/v1/economy/accounts | number[]? | | GET | `economy_accounts` | List of all accounts whose numbers were specified, or all of them if not specified at all.
+/v1/economy/accounts | | [accounts_payload](#post-&-put-/v1/economy/accounts) | POST | `economy_accounts` | Creates a new account with the specified details.
+/v1/economy/accounts | | [accounts_payload](#post-&-put-/v1/economy/accounts) | PUT | `economy_accounts` | Updates an existing account with new details.
+/v1/economy/accounts | number[] | | DELETE | `economy_accounts` | Deletes/removes the specified account(s).
+/v1/economy/periods/months | year[]?, month[] | | GET | `economy_periods` | Retrieves the specified period(s).
+/v1/economy/periods/months/current | | | GET | `economy_periods` | Retrieves the current period.
+/v1/economy/periods/years | year[]? | | GET | `economy_periods` | Retrieves all month peiods in the specified year(s).
+/v1/economy/periods/years/current | | | GET | `economy_periods` | Retrieves all month periods in the current year.
+/v1/economy/transactions | id[]? or startDate, endDate, toAccount?, fromAccount? | | GET | `economy_transactions` | Retrieves the specified transaction(s).
+/v1/economy/transactions | | [transactions_payload](#post-/v1/economy/transactions) | POST | Registers a new transactions with the specified details.
+/v1/economy/transactions | id | [transactions_payload](#put-/v1/economy/transactions) | PUT | Updates the specified transactions with the specified details.
+/v1/economy/transactions | id | | DELETE | Deletes/removes the specified transaction.
 
 ### Food
 
@@ -53,3 +54,77 @@ URL | HTTP Method | Privileges | Returns
 /food/jh/express/today/*lang* | GET | FOOD | Returns today's Express lunch
 /food/jh/express/week/*lang* | GET | FOOD | Returns the current week's Express lunches
 /food/jh/karr/week/*lang* | GET | FOOD | Returns the current week's Kårrestaurangen lunches
+
+## Payloads
+
+All payloads specified in the list of endpoints above.
+
+### POST & PUT /v1/economy/accounts
+```python
+{
+    "number": {
+        "required": True,
+        "allowed_types": [int]
+    },
+    "name": {
+        "required": True,
+        "allowed_types": [str]
+    },
+    "desc": {
+        "required": True,
+        "allowed_types": [str]
+    }
+}
+```
+
+### POST /v1/economy/transactions
+```python
+{
+    "amount": {
+        "required": True,
+        "allowed_types": [float, int]
+    },
+    "date_trans": {
+        "required": False,
+        "allowed_types": [int]
+    },
+    "desc": {
+        "required": True,
+        "allowed_types": [str]
+    },
+    "from_account": {
+        "required": True,
+        "allowed_types": [int]
+    },
+    "to_account": {
+        "required": True,
+        "allowed_types": [int]
+    }
+}
+```
+
+### PUT /v1/economy/transactions
+```python
+{
+    "amount": {
+        "required": False,
+        "allowed_types": [float, int]
+    },
+    "date_trans": {
+        "required": False,
+        "allowed_types": [int]
+    },
+    "desc": {
+        "required": False,
+        "allowed_types": [str]
+    },
+    "from_account": {
+        "required": False,
+        "allowed_types": [int]
+    },
+    "to_account": {
+        "required": False,
+        "allowed_types": [int]
+    }
+}
+```
