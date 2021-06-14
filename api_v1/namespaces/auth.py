@@ -54,6 +54,8 @@ login = api.model("login", {
 @api.route("/login")
 class LoginResource(Resource):
 
+    @api.response(401, "Invalid username or password")
+    @api.response(200, "Successfully logged in, returning token")
     @api.doc(security=None)
     @api.expect(login)
     @privilege_required(None)

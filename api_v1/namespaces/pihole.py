@@ -14,7 +14,9 @@ ph = PiHole()
 
 @api.route("/status")
 class PiHoleResource(Resource):
+    '''Get PiHole status'''
 
+    @api.doc("pihole_status_get", description="## Get the current status of the PiHole dani is hosting in his home network.")
     @api.response(200, "Status retrieved and returned")
     @api.response(500, "Address to PiHole not correctly setup in config.")
     @privilege_required("pihole")
