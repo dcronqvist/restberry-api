@@ -118,9 +118,9 @@ def get_username_from_token(token):
     res = db.users.find_one(user)
     if res:
         del res['_id']
-        return True, res
+        return True, res["username"]
     return False, None
 
 def token_has_privilege(token, privilege):
-    username = get_username_from_token(token)
+    succ, username = get_username_from_token(token)
     return has_privilege(username, privilege)

@@ -13,9 +13,9 @@ def privilege_required(privilege):
             if privilege:
                 author = request.headers.get("Authorization")
                 if author:
-                    username = users.get_username_from_token(author)
+                    succ, username = users.get_username_from_token(author)
                     succ, tokens = users.validate_token_for_user(username, author)
-                    has_priv = users.token_has_privilege(author)
+                    has_priv = users.token_has_privilege(author, privilege)
                     
                     if has_priv and succ:
                         return func(*args, **kwargs)
@@ -53,8 +53,19 @@ def privilege_required(privilege):
 # import api.routes.users
 
 from api_v1.namespaces.auth import api as auth
+from api_v1.namespaces.pihole import api as pihole
 
 blueprint = Blueprint("apiv1", __name__, url_prefix="/v1")
-api = Api(blueprint, title="restberry-api", version="1.0", description="a dani api")
+
+authorizations = {
+    'token': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization'
+    }
+}
+
+api = Api(blueprint, title="restberry-api", version="1.0", description="a dani api", authorizations=authorizations, security=["token"])
 
 api.add_namespace(auth)
+api.add_namespace(pihole)

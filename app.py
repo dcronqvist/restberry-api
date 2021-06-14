@@ -1,9 +1,11 @@
 from flask import Flask, Blueprint, request, render_template
 from flask_restx import Resource, Api, fields
+from flask_cors import CORS
 import config
 from api_v1 import blueprint as apiv1
 
 app = Flask(__name__)
+CORS(app)
 
 main = Blueprint("main", __name__, url_prefix="/")
 

@@ -7,5 +7,6 @@
     "minecraft-server-password": "password",
     "minecraft-server-rcon-port": 25575,
     "listen-port": 5251,
-    "token-lifetime-minutes": 60
+    "token-lifetime-minutes": 60,
+    "pihole-address": "hostname.or.ip"
 }

@@ -3,7 +3,7 @@ from flask_restx import Resource, Namespace, fields
 import users as users
 from api_v1 import privilege_required
 
-api = Namespace("auth", description="Authorization operations")
+api = Namespace("auth", description="Authorization operations", security=None)
 
 class User(object):
     def __init__(self, username):
@@ -54,8 +54,9 @@ login = api.model("login", {
 @api.route("/login")
 class LoginResource(Resource):
 
+    @api.doc(security=None)
+    @api.expect(login)
     @privilege_required(None)
-    @api.expect(login, validate=True)
     def post(self):
         user = User(api.payload["username"])
         if not user.validate_password(api.payload["password"]):
