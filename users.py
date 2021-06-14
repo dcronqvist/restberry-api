@@ -37,17 +37,17 @@ def validate_user(username, password):
             return True
     return False
 
-def has_privilege(username, priv):
+def has_privilege(username, priv : str):
     succ, user = find_user(username)
     if succ:
         if "super" in user["privileges"]:
             return True
 
-        return priv in user["privileges"]
+        return priv.lower() in user["privileges"]
     else:
         return False
 
-def add_privilege(username, priv):
+def add_privilege(username, priv : str):
     succ, user = find_user(username)
     if succ:
         query = {"username" : username}
@@ -62,7 +62,7 @@ def remove_privilege(username, priv):
     succ, user = find_user(username)
     if succ:
         query = {"username" : username}
-        user["privileges"].remove(priv)
+        user["privileges"].remove(priv.lower())
         newVal = {"$set" : { "privileges" : user["privileges"]}}
         db.users.update_one(query, newVal)
         succ, user = find_user(username)
@@ -82,7 +82,7 @@ def validate_token_for_user(username, token):
     token_timeout = config.get_setting("token-lifetime-minutes", 30) * 60
     succ, tokens = get_all_tokens_for_user(username)
     if succ:
-        check = [tokenobj for tokenobj in tokens if ((tokenobj["created"] + token_timeout) > datetime.datetime.now().timestamp()) and (tokenobj["token"] == token)]
+        check = [tokenobj for tokenobj in tokens if ((tokenobj["created"] + token_timeout) > datetime.datetime.now().timestamp()) or (tokenobj["token"] == token)]
         if len(check) > 0:
             return True, check
 
@@ -96,12 +96,31 @@ def create_token_for_user(username):
     succ, user = find_user(username)
     if succ:
         new_token = uuid.uuid4()
-        succ, tokens = validate_token_for_user(username, new_token)
         succ, tokens = get_all_tokens_for_user(username)
-        tokens.append({ "token": str(new_token), "created": round(datetime.datetime.now().timestamp()) })
+        tok = { "token": str(new_token), "created": round(datetime.datetime.now().timestamp()) }
+        tokens.append(tok)
         filt = {"username": username}
         query = { "$set": { "tokens": tokens } }
         db.users.update_one(filt, query)
-        return True, tokens
+        succ, tokens = validate_token_for_user(username, new_token)
+        return True, tok
     else:
         return False, None
+
+def get_username_from_token(token):
+    user = {
+        "tokens" : {
+            "$elemMatch": {
+                "token": token
+            }
+        }
+    }
+    res = db.users.find_one(user)
+    if res:
+        del res['_id']
+        return True, res
+    return False, None
+
+def token_has_privilege(token, privilege):
+    username = get_username_from_token(token)
+    return has_privilege(username, privilege)
