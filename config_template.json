@@ -2,7 +2,11 @@
     "greet-home": "Hello World!",
     "mongo-db-conn": "null",
     "secret-file": "creds",
-    "economy_sheet": "google-sheets-id",
-    "economy-out-form": "form",
-    "economy-in-form": "form"
+    "minecraft-server-host": "serverip.or.hostname",
+    "minecraft-server-port": 25565,
+    "minecraft-server-password": "password",
+    "minecraft-server-rcon-port": 25575,
+    "listen-port": 5251,
+    "token-lifetime-minutes": 60,
+    "pihole-address": "hostname.or.ip"
 }

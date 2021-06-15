@@ -25,7 +25,7 @@ def update():
         print_user(user)
 
         while True:
-            action = input("update " + username + "> ")
+            action = input(f"update (addpriv/removepriv/viewtokens/checktoken/createtoken/exit) " + username + "> ")
             if "addpriv" in action:
                 spl = action.split()[1]
                 succ, newPrivUser = users.add_privilege(username, spl)
@@ -37,6 +37,16 @@ def update():
             elif action == "exit":
                 print("Goodbye.")
                 break
+            elif action == "viewtokens":
+                tokens = users.get_all_tokens_for_user(username)
+                print(tokens)
+            elif action == "checktoken":
+                token = input("token> ")
+                succ, check = users.validate_token_for_user(username, token)
+                print(succ, check)
+            elif action == "createtoken":
+                succ, tokens = users.create_token_for_user(username)
+                print(succ, tokens)
             else:
                 print("invalid command. try again.")
     else:
