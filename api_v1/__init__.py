@@ -32,6 +32,8 @@ def privilege_required(privilege):
 
 from api_v1.namespaces.auth import api as auth
 from api_v1.namespaces.pihole import api as pihole
+from api_v1.namespaces.periods import api as periods
+from api_v1.namespaces.accounts import api as accounts
 
 blueprint = Blueprint("apiv1", __name__, url_prefix="/v1")
 
@@ -47,3 +49,5 @@ api = Api(blueprint, title="restberry-api", version="1.0", description="a dani a
 
 api.add_namespace(auth)
 api.add_namespace(pihole)
+api.add_namespace(periods)
+api.add_namespace(accounts)
