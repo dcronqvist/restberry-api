@@ -30,28 +30,6 @@ def privilege_required(privilege):
         return wrapper
     return decorator
 
-
-# # Send the response in an appropriate format
-# @app.after_request
-# def after(response):
-# 	ret = {
-# 		"status_code": response.status_code,
-# 		"status": response.status,
-# 		"response": response.get_json()
-# 	}
-# 	return make_response(jsonify(ret), ret["status_code"])
-
-# @app.route("/")
-# def base():
-# 	return make_response(jsonify(config.get_setting("greet-home", "Hello World!")), 200)
-
-# import api.routes.economy.accounts
-# import api.routes.economy.transactions
-# import api.routes.economy.periods
-# import api.routes.endpoints
-# import api.routes.minecraft
-# import api.routes.users
-
 from api_v1.namespaces.auth import api as auth
 from api_v1.namespaces.pihole import api as pihole
 

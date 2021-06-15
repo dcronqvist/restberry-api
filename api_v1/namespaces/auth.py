@@ -51,12 +51,27 @@ login = api.model("login", {
     "password": fields.String(required=True, description="The API user's password")
 })
 
+post_doc = """
+### Attempts login using specified credentials
+
+Using this endpoint, you can attempt to login and retrieve a token which will be valid for 60 minutes upon retrieval. This token must be supplied in **ALL** future requests as the value in an `Authorization` header to all other API endpoints.
+
+In order to use some (in fact most) endpoints, you as a user must have specific privileges. These privileges will be documented under each endpoint, to show which are needed, like this:
+
+#### Privileges
+- no_privilege
+- super_power
+- doge
+
+This login endpoint is the one exception of requiring no `Authorization` header, as it provides the means to aquire the token needed for the header.
+"""
+
 @api.route("/login")
 class LoginResource(Resource):
 
     @api.response(401, "Invalid username or password")
     @api.response(200, "Successfully logged in, returning token")
-    @api.doc(security=None)
+    @api.doc(security=None, description=post_doc)
     @api.expect(login)
     @privilege_required(None)
     def post(self):
