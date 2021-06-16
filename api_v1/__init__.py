@@ -45,7 +45,7 @@ authorizations = {
     }
 }
 
-api = Api(blueprint, title="restberry-api", version="1.0", description="a dani api :)", authorizations=authorizations, security=["token"])
+api = Api(blueprint, title="restberry-api", version="1.0", description="a dani api :) :D", authorizations=authorizations, security=["token"])
 
 api.add_namespace(auth)
 api.add_namespace(pihole)
