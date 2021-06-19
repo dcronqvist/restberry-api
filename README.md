@@ -9,11 +9,20 @@ Check it out here: [https://api.dcronqvist.se](https://api.dcronqvist.se)
 ## Table of contents
 
 - [Authentication](#authentication)
-- [Endpoints](#endpoints)
-    - [Available privileges](#available-privileges)
-    - [List of endpoints](#list-of-endpoints)
-        - [Authorization](#authorization)
-            - [/v1/auth/login](#authorization)
+- [Available privileges](#available-privileges)
+- [List of endpoints](#list-of-endpoints)
+    - [Authorization](#authorization)
+        - [/v1/auth/login](#authorization)
+    - [Economy](#economy)
+        - [/v1/economy/periods/months](#economy)
+        - [/v1/economy/periods/months/current](#economy)
+        - [/v1/economy/periods/years](#economy)
+        - [/v1/economy/periods/years/current](#economy)
+        - [/v1/economy/accounts](#economy)
+        - [/v1/economy/transactions](#economy)
+        - [/v1/economy/transactions/id](#economy)
+    - [PiHole](#pihole)
+        - [/v1/pihole/status](#pihole)
 
 ## Authentication
 
@@ -21,11 +30,9 @@ To authenticate against the API, you must have a valid login (username & passwor
 
 The acquired token must be supplied in the `Authorization` header for all subsequent API requests. The only endpoint which does not require the `Authorization` header is of course the `/v1/auth/login` endpoint, as that wouldn't make much sense.
 
-## Endpoints
+## Available privileges
 
 There is a multitude of RESTful endpoints, which all require certain ***privileges***.
-
-### Available privileges
 
 Privilege | Description
 ------------ | -------------
@@ -35,106 +42,37 @@ transactions | Additional economy privilege for accessing transactions
 periods | Additional economy privilege for accessing economic periods
 pihole | Privilege that gives access to status information from dani's pihole
 
-### List of endpoints
+## List of endpoints
 
-Here is a list of endpoints which you can request, however, to have some more insight to what they expect, or more detailed information, please head to [https://api.dcronqvist.se](https://api.dcronqvist.se) and go to the relevant version to see the official documentation.
+Here is a list of endpoints which you can request, however, to have some more insight to what they expect (regarding query parameters or payloads), or more detailed information in general, please head to [https://api.dcronqvist.se](https://api.dcronqvist.se) and go to the relevant version to see the official documentation.
 
-#### Authorization
+### Authorization
 All endpoints related to authentication in the API.
 
 URL | HTTP Method | Privileges | Returns/Performs
 --- | ----------- | ---------- | ---------------
-/v1/auth/login | POST | None | A token which is valid for 60 minutes.
+/v1/auth/login | POST | None | A token which is valid for 60 minutes
 
-#### Economy
+### Economy
 
-All endpoints related to dani's personal finance.
+All endpoints related to dani's personal finance, all of  **the following endpoints require the privilege `economy`** in addition to their specific privilege.
 
 URL | HTTP Method | Privileges | Returns/Performs
 --- | ----------- | ---------- | ---------------
-/v1/
+/v1/economy/periods/months | GET | `periods` | Returns the specified month(s)'s economic period
+/v1/economy/periods/months/current | GET | `periods` | Returns the current month's economic period
+/v1/economy/periods/years | GET | `periods` | Returns the specified year's economic period
+/v1/economy/periods/years/current | GET | `periods` | Returns the current year's economic period
+/v1/economy/accounts | GET | `accounts` | Returns all or the specified account(s)'s information
+/v1/economy/accounts | POST | `accounts` | Creates a new economy account
+/v1/economy/transactions | GET | `transactions` | Returns all or the specified transaction(s)'s information
+/v1/economy/transactions | POST | `transactions` | Creates a new transaction
+/v1/economy/transactions/id | GET | `transactions` | Returns the specified transaction
 
+### PiHole
 
-### Food
+All endpoints related to dani's PiHole, all the following endpoints require the privilege `pihole`.
 
-For all available food endpoints, you can specify which language you want the response in, either **swe** or **eng**.
-
-URL | HTTP Method | Privileges | Returns
------------- | ------------- | ------------- |-------------
-/food/jh/express/today/*lang* | GET | FOOD | Returns today's Express lunch
-/food/jh/express/week/*lang* | GET | FOOD | Returns the current week's Express lunches
-/food/jh/karr/week/*lang* | GET | FOOD | Returns the current week's Kårrestaurangen lunches
-
-## Payloads
-
-All payloads specified in the list of endpoints above.
-
-### POST & PUT /v1/economy/accounts
-```python
-{
-    "number": {
-        "required": True,
-        "allowed_types": [int]
-    },
-    "name": {
-        "required": True,
-        "allowed_types": [str]
-    },
-    "desc": {
-        "required": True,
-        "allowed_types": [str]
-    }
-}
-```
-
-### POST /v1/economy/transactions
-```python
-{
-    "amount": {
-        "required": True,
-        "allowed_types": [float, int]
-    },
-    "date_trans": {
-        "required": False,
-        "allowed_types": [int]
-    },
-    "desc": {
-        "required": True,
-        "allowed_types": [str]
-    },
-    "from_account": {
-        "required": True,
-        "allowed_types": [int]
-    },
-    "to_account": {
-        "required": True,
-        "allowed_types": [int]
-    }
-}
-```
-
-### PUT /v1/economy/transactions
-```python
-{
-    "amount": {
-        "required": False,
-        "allowed_types": [float, int]
-    },
-    "date_trans": {
-        "required": False,
-        "allowed_types": [int]
-    },
-    "desc": {
-        "required": False,
-        "allowed_types": [str]
-    },
-    "from_account": {
-        "required": False,
-        "allowed_types": [int]
-    },
-    "to_account": {
-        "required": False,
-        "allowed_types": [int]
-    }
-}
-```
+URL | HTTP Method | Returns/Performs
+--- | ----------- | ---------------
+/v1/pihole/status | GET | Returns PiHole statistics
