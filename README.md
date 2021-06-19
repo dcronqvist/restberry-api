@@ -1,54 +1,59 @@
 # restberry-api
 
-![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m788440920-edcdd5975b38ec31da628d55) ![Website](https://img.shields.io/website?down_message=down&label=status&up_message=up&url=https%3A%2F%2Fapi.dcronqvist.se)
-
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/CI%20to%20Docker%20Hub?label=build%20%26%20docker%20hub%20push) ![Docker Pulls](https://img.shields.io/docker/pulls/dcronqvist/restberry-api) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dcronqvist/restberry-api/latest)
+![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m788440920-edcdd5975b38ec31da628d55) ![Website](https://img.shields.io/website?down_message=down&label=status&up_message=up&url=https%3A%2F%2Fapi.dcronqvist.se) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/CI%20to%20Docker%20Hub?label=build%20%26%20docker%20hub%20push) ![Docker Pulls](https://img.shields.io/docker/pulls/dcronqvist/restberry-api) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dcronqvist/restberry-api/latest)
 
 A REST API that used to be hosted on my Raspberry Pi 4, hence the name. Is now hosted as a docker container on another server. 
 
 Check it out here: [https://api.dcronqvist.se](https://api.dcronqvist.se)
 
+## Table of contents
+
+- [Authentication](#authentication)
+- [Endpoints](#endpoints)
+    - [Available privileges](#available-privileges)
+    - [List of endpoints](#list-of-endpoints)
+        - [Authorization](#authorization)
+            - [/v1/auth/login](#authorization)
+
+## Authentication
+
+To authenticate against the API, you must have a valid login (username & password), which you POST to [https://api.dcronqvist.se/v1/auth/login](https://api.dcronqvist.se/v1/). Once authorized, you'll be given a token which will be valid for the following 60 minutes, after that you must acquire a new token to remain authorized. 
+
+The acquired token must be supplied in the `Authorization` header for all subsequent API requests. The only endpoint which does not require the `Authorization` header is of course the `/v1/auth/login` endpoint, as that wouldn't make much sense.
+
 ## Endpoints
 
 There is a multitude of RESTful endpoints, which all require certain ***privileges***.
 
-### All available privileges
+### Available privileges
 
 Privilege | Description
 ------------ | -------------
-minecraft_command | Allows for performing any RCON command on the connected minecraft server
-minecraft_whitelist | Allows the user to manage the whitelist of the connected minecraft server
-economy_accounts | Allows access to all endpoints regarding economy accounts
-economy_periods | Allows access to all economy periods endpoints
-economy_transactions | Allows access to register and view economy transactions
+economy | Base privilege for most endpoints regarding economy
+accounts | Additional economy privilege for accessing accounts
+transactions | Additional economy privilege for accessing transactions
+periods | Additional economy privilege for accessing economic periods
+pihole | Privilege that gives access to status information from dani's pihole
 
-### Endpoints
+### List of endpoints
 
-These are endpoints which serve as a way to find all available endpoints of the API in a list. I use these as a way to quickly test new endpoints from my Siri Shortcuts.
+Here is a list of endpoints which you can request, however, to have some more insight to what they expect, or more detailed information, please head to [https://api.dcronqvist.se](https://api.dcronqvist.se) and go to the relevant version to see the official documentation.
 
-URL | HTTP Method | Privileges | Returns
------------- | ------------- | ------------- |-------------
-/endpoints/all | GET | None | Returns all available endpoints
-/endpoints/search/*string* | GET | None | Returns all endpoints which contains the search term
+#### Authorization
+All endpoints related to authentication in the API.
 
-### Economy
+URL | HTTP Method | Privileges | Returns/Performs
+--- | ----------- | ---------- | ---------------
+/v1/auth/login | POST | None | A token which is valid for 60 minutes.
 
-All endpoints which allow access to the personal finance part of this API. In the following endpoints, all URL parameters which are followed by `[]` can be specified multiple times in order to specify multiple of whatever the specific endpoint retrieves. All URL parameters which are followed by a `?` is considered optional and will usually make the specific endpoint return all possible values instead of any specific value. To see what payloads are expected by `POST` & `PUT` endpoints, click the `POST` & `PUT` links on the respective table row.
+#### Economy
 
-URL | URL Parameters | HTTP Method | Privileges | Returns/Performs
------------- | ------------- |------------- | ---------- | --
-/v1/economy/accounts | number[]? | GET | `economy_accounts` | List of all accounts whose numbers were specified, or all of them if not specified at all
-/v1/economy/accounts | | [POST](#post-&-put-/v1/economy/accounts) | `economy_accounts` | Creates a new account with the specified details
-/v1/economy/accounts | | [PUT](#post-&-put-/v1/economy/accounts) | `economy_accounts` | Updates an existing account with new details
-/v1/economy/accounts | number[] | DELETE | `economy_accounts` | Deletes/removes the specified account(s)
-/v1/economy/periods/months | year[]?, month[] | GET | `economy_periods` | Retrieves the specified period(s)
-/v1/economy/periods/months/current | | GET | `economy_periods` | Retrieves the current period
-/v1/economy/periods/years | year[]? | GET | `economy_periods` | Retrieves all month peiods in the specified year(s)
-/v1/economy/periods/years/current | | GET | `economy_periods` | Retrieves all month periods in the current year
-/v1/economy/transactions | id[]? or startDate, endDate, toAccount?, fromAccount? | GET | `economy_transactions` | Retrieves the specified transaction(s)
-/v1/economy/transactions | | [POST](#post-/v1/economy/transactions) | `economy_transactions` | Registers a new transactions with the specified details
-/v1/economy/transactions | id | [PUT](#put-/v1/economy/transactions) | `economy_transactions` | Updates the specified transactions with the specified details
-/v1/economy/transactions | id | DELETE | `economy_transactions` | Deletes/removes the specified transaction
+All endpoints related to dani's personal finance.
+
+URL | HTTP Method | Privileges | Returns/Performs
+--- | ----------- | ---------- | ---------------
+/v1/
+
 
 ### Food
 
