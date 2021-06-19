@@ -4,13 +4,13 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/CI%20to%20Docker%20Hub?label=build%20%26%20docker%20hub%20push) ![Docker Pulls](https://img.shields.io/docker/pulls/dcronqvist/restberry-api) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dcronqvist/restberry-api/latest)
 
-A REST API that is hosted on my raspberry pi 4. Has different categories of endpoints which all serve different purposes. Most of them are GET endpoints, to make it as easy as possible to interact with. It's always hosted over a connection with SSL, to make sure all traffic is secured.
+A REST API that used to be hosted on my Raspberry Pi 4, hence the name. Is now hosted as a docker container on another server. 
 
-Check it out here [https://api.dcronqvist.se](https://api.dcronqvist.se)
+Check it out here: [https://api.dcronqvist.se](https://api.dcronqvist.se)
 
 ## Endpoints
 
-There is a multitude of RESTful endpoints, which all required certain ***privileges***.
+There is a multitude of RESTful endpoints, which all require certain ***privileges***.
 
 ### All available privileges
 
