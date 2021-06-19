@@ -34,6 +34,7 @@ from api_v1.namespaces.auth import api as auth
 from api_v1.namespaces.pihole import api as pihole
 from api_v1.namespaces.periods import api as periods
 from api_v1.namespaces.accounts import api as accounts
+from api_v1.namespaces.transactions import api as transactions
 
 blueprint = Blueprint("apiv1", __name__, url_prefix="/v1")
 
@@ -51,3 +52,4 @@ api.add_namespace(auth)
 api.add_namespace(pihole)
 api.add_namespace(periods)
 api.add_namespace(accounts)
+api.add_namespace(transactions)
