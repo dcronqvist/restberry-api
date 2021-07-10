@@ -83,12 +83,11 @@ def validate_token_for_user(username, token):
     succ, tokens = get_all_tokens_for_user(username)
     if succ:
         check = [tokenobj for tokenobj in tokens if ((tokenobj["created"] + token_timeout) > datetime.datetime.now().timestamp()) or (tokenobj["token"] == token)]
-        if len(check) > 0:
-            return True, check
-
         filt = {"username": username }
         query = { "$set": { "tokens": check } }
         db.users.update_one(filt, query)
+        if len(check) > 0:
+            return True, check
         return False, check
     return False, None
 
