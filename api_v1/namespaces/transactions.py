@@ -78,7 +78,7 @@ class TransactionByDateResource(Resource):
         transactions = stringify_ids(list(transactions))
         return transactions, 200
 
-    @api.expect(post_model)
+    @api.expect(post_model, validate=True)
     @privilege_required("accounts")
     @privilege_required("economy")
     def post(self):
