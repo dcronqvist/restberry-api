@@ -3,14 +3,14 @@ from flask_restx import Api
 # from flask_cors import CORS
 # from werkzeug.datastructures import ImmutableMultiDict
 import users
-# import config as config
+import config as config
 # from pytechecker import check
 
 # Check if user has privilege to use part of API
 def privilege_required(privilege):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            if privilege:
+            if privilege and config.get_setting("authorization-enabled", True):
                 author = request.headers.get("Authorization")
                 if author:
                     succ, username = users.get_username_from_token(author)
