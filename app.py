@@ -5,7 +5,6 @@ import config
 from api_v1 import blueprint as apiv1
 
 app = Flask(__name__)
-CORS(app)
 
 main = Blueprint("main", __name__, url_prefix="/")
 
@@ -16,4 +15,5 @@ def hello():
 app.register_blueprint(apiv1)
 app.register_blueprint(main)
 
+CORS(app)
 app.run(debug=True, port=config.get_setting("listen-port", 5251), host="0.0.0.0")
