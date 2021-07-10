@@ -1,10 +1,11 @@
+from datetime import datetime
 from bson.objectid import ObjectId
 from flask import request
 from flask_restx import Resource, Namespace, fields, reqparse
 from api_v1 import privilege_required
 import requests as req
 import config as conf
-from db import coll_trans, stringify_ids
+from db import coll_trans, stringify_ids, coll_accounts
 from users import get_username_from_token
 
 """
@@ -27,43 +28,6 @@ between_dates.add_argument("endDate", type=int, required=True, location="args")
 between_dates.add_argument("fromAccount", type=int, required=False, location="args")
 between_dates.add_argument("toAccount", type=int, required=False, location="args")
 
-# by_id = api.schema_model("by_id", {
-#     "properties": {
-#         "id": {
-#             "type": "string"
-#         }
-#     },
-#     "additionalProperties": False,
-#     "type": "object"
-# })
-
-# get_model = api.schema_model("get_transaction", {
-# 	"type": "object",
-#     "definitions": {
-#         "betweenDates": {
-#             "properties": {
-#                 "id": {
-#                     "type": "string"
-#                 }
-#             },
-#             "additionalProperties": False,
-#             "type": "object"
-#         },
-#         "byId": {
-#             "properties": {
-#                 "id": {
-#                     "type": "string"
-#                 }
-#             },
-#             "additionalProperties": False,
-#             "type": "object"
-#         }
-#     },
-#     "oneOf": [
-#       {"$ref": "/v1/swagger.json#/definitions/get_transaction/definitions/betweenDates"},
-#       {"$ref": "/v1/swagger.json#/definitions/get_transaction/definitions/byId"},
-#     ]
-# })
 
 get_doc = """
 ### Retrieval of economy accounts
@@ -76,6 +40,15 @@ Specifying no numbers at all will retrieve all accounts available, while specify
 - economy
 - accounts
 """
+
+post_model = api.model("post_transaction", {
+    "amount": fields.Float(example=39.9, required=True),
+    "date_trans": fields.Integer(example=round(datetime.now().timestamp()), required=False),
+    "desc": fields.String(example="Transaction for stuff", required=True),
+    "from_account": fields.Integer(example=101, required=True),
+    "to_account": fields.Integer(example=401, required=True)            
+})
+
 
 @api.route("")
 class TransactionByDateResource(Resource):
@@ -105,10 +78,26 @@ class TransactionByDateResource(Resource):
         transactions = stringify_ids(list(transactions))
         return transactions, 200
 
+    @api.expect(post_model)
     @privilege_required("accounts")
     @privilege_required("economy")
     def post(self):
-        pass
+        accounts = [api.payload["from_account"], api.payload["to_account"]]
+        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        errors = []
+        for acc in accounts:
+            test = coll_accounts.find_one({ "user": username, "number": acc})
+            if not test:
+                errors.append(f"Could not find an account with number {acc} associated with your user.")
+        if len(errors) > 0:
+            return { "errors": errors }, 400
+
+        api.payload["date_reg"] = round(datetime.now().timestamp())
+        api.payload["user"] = username
+        api.payload["date_trans"] = api.payload.get("date_trans", api.payload["date_reg"])
+        coll_trans.insert_one(api.payload)
+        api.payload["_id"] = str(api.payload["_id"])
+        return api.payload, 200
 
 by_id = reqparse.RequestParser()
 by_id.add_argument("id", type=str, required=True, location="args")
