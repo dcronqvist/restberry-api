@@ -16,4 +16,12 @@ app.register_blueprint(apiv1)
 app.register_blueprint(main)
 
 CORS(app)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
+
 app.run(debug=True, port=config.get_setting("listen-port", 5251), host="0.0.0.0")
