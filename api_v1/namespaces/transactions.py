@@ -42,7 +42,7 @@ Specifying no numbers at all will retrieve all accounts available, while specify
 """
 
 post_model = api.model("post_transaction", {
-    "amount": fields.Float(example=39.9, required=True),
+    "amount": fields.Float(example=39.9, required=True, min=0),
     "date_trans": fields.Integer(example=round(datetime.now().timestamp()), required=False),
     "desc": fields.String(example="Transaction for stuff", required=True),
     "from_account": fields.Integer(example=101, required=True),

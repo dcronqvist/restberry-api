@@ -35,6 +35,7 @@ from api_v1.namespaces.pihole import api as pihole
 from api_v1.namespaces.periods import api as periods
 from api_v1.namespaces.accounts import api as accounts
 from api_v1.namespaces.transactions import api as transactions
+from api_v1.namespaces.ai import api as ai
 
 blueprint = Blueprint("apiv1", __name__, url_prefix="/v1")
 
@@ -46,10 +47,11 @@ authorizations = {
     }
 }
 
-api = Api(blueprint, title="restberry-api", version="1.0.1", description="a dani api", authorizations=authorizations, security=["token"])
+api = Api(blueprint, title="restberry-api", version="1.1.0", description="a dani api", authorizations=authorizations, security=["token"])
 
 api.add_namespace(auth)
 api.add_namespace(pihole)
 api.add_namespace(periods)
 api.add_namespace(accounts)
 api.add_namespace(transactions)
+api.add_namespace(ai)
