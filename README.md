@@ -23,6 +23,8 @@ Check it out here: [https://api.dcronqvist.se](https://api.dcronqvist.se)
         - [/v1/economy/transactions/id](#economy)
     - [PiHole](#pihole)
         - [/v1/pihole/status](#pihole)
+    - [AI](#ai)
+        - [/v1/ai/accountant](#ai)
 
 ## Authentication
 
@@ -76,3 +78,11 @@ All endpoints related to dani's PiHole, all the following endpoints require the 
 URL | HTTP Method | Returns/Performs
 --- | ----------- | ---------------
 /v1/pihole/status | GET | Returns PiHole statistics
+
+### AI
+
+All endpoints related to dani's different AI models.
+
+URL | HTTP Method | Privileges | Returns/Performs
+--- | ----------- | ---------- | ---------------
+/v1/ai/accountant | GET | `economy, transactions, accounts` | Predicts which accounts the specified transaction might go FROM and TO.
