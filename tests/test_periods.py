@@ -1,4 +1,4 @@
-from api_v1.namespaces.periods import get_dates_month_period
+from models.economy.periods import get_dates_month_period
 import datetime as dt
 
 def test_17th_january():

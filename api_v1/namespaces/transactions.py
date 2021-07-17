@@ -6,7 +6,7 @@ from api_v1 import privilege_required
 import requests as req
 import config as conf
 from db import coll_trans, stringify_ids, coll_accounts
-from users import get_username_from_token
+from api_v1 import user_client
 
 """
 DONE
@@ -60,7 +60,7 @@ class TransactionByDateResource(Resource):
     @privilege_required("economy")
     def get(self):
         args = between_dates.parse_args()
-        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
         find_query = {
             "user": username,
             "date_trans": {
@@ -83,7 +83,7 @@ class TransactionByDateResource(Resource):
     @privilege_required("economy")
     def post(self):
         accounts = [api.payload["from_account"], api.payload["to_account"]]
-        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
         errors = []
         for acc in accounts:
             test = coll_accounts.find_one({ "user": username, "number": acc})
@@ -110,7 +110,7 @@ class TransactionByIDResource(Resource):
     @privilege_required("economy")
     def get(self):
         args = by_id.parse_args()
-        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
 
         transaction = coll_trans.find({"user": username, "_id": ObjectId(args["id"])})
         transaction = stringify_ids(list(transaction))

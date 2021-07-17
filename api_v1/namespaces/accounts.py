@@ -4,7 +4,7 @@ from api_v1 import privilege_required
 import requests as req
 import config as conf
 from db import coll_accounts
-from users import get_username_from_token
+from api_v1 import user_client
 
 api = Namespace("accounts", path="/economy/accounts", description="Operations regarding economy accounts")
 
@@ -48,7 +48,7 @@ class AccountsResource(Resource):
     @privilege_required("economy")
     def get(self):
         args = get_requests.parse_args()
-        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
 
         if not args["number"]:
             accs = coll_accounts.find({"user": username }, {"_id": 0}, sort=[("number", 1)])
@@ -65,7 +65,7 @@ class AccountsResource(Resource):
     @privilege_required("economy")
     def post(self):
         payload = api.payload
-        succ, username = get_username_from_token(request.headers.get("Authorization"))
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
         test = coll_accounts.find_one({"number": payload["number"]}, {"_id": 0})
 
         if test:

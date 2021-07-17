@@ -2,9 +2,11 @@ from flask import Blueprint, request
 from flask_restx import Api
 # from flask_cors import CORS
 # from werkzeug.datastructures import ImmutableMultiDict
-from users import get_username_from_token, validate_token_for_user, token_has_privilege
+from users import UsersClient
 import config as config
 # from pytechecker import check
+
+user_client = UsersClient()
 
 # Check if user has privilege to use part of API
 def privilege_required(privilege):
@@ -13,9 +15,9 @@ def privilege_required(privilege):
             if privilege and config.get_setting("authorization-enabled", True):
                 author = request.headers.get("Authorization")
                 if author:
-                    succ, username = get_username_from_token(author)
-                    succ, tokens = validate_token_for_user(username, author)
-                    has_priv = token_has_privilege(author, privilege)
+                    succ, username = user_client.get_username_from_token(author)
+                    succ, tokens = user_client.validate_token_for_user(username, author)
+                    has_priv = user_client.token_has_privilege(author, privilege)
                     
                     if has_priv and succ:
                         return func(*args, **kwargs)

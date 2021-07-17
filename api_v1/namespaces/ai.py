@@ -2,10 +2,6 @@ from datetime import datetime
 from flask import request
 from flask_restx import Resource, Namespace, fields, reqparse
 from api_v1 import privilege_required
-import requests as req
-import config as conf
-from db import coll_accounts
-from users import get_username_from_token
 import pandas as pd
 import pickle
 
