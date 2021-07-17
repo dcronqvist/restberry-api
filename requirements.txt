@@ -21,7 +21,6 @@ jsonschema==3.2.0
 lazy-object-proxy==1.6.0
 MarkupSafe==2.0.1
 mccabe==0.6.1
-mcrcon==0.6.0
 mcstatus==6.0.0
 numpy==1.21.0
 packaging==21.0
@@ -34,7 +33,6 @@ pylint==2.8.3
 pymongo==3.11.4
 pyparsing==2.4.7
 pyrsistent==0.17.3
-pytechecker==1.0.1
 pytest==6.2.4
 python-dateutil==2.8.2
 pytz==2021.1

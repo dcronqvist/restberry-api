@@ -1,4 +1,4 @@
-import users as users
+from models.users.users import user_client
 
 def print_user(user):
     print("Username: " + user["username"])
@@ -9,7 +9,7 @@ def add():
     print("--- Adding a user ---")
     username = input("Username: ")
     password = input("Password: ")
-    succ, user = users.add_user(username, password)
+    succ, user = user_client.add_user(username, password)
     if succ:
         print("Successfully added user '" + username + "'")
     else:
@@ -18,7 +18,7 @@ def add():
 def update():
     print("--- Updating a user ---")
     username = input("Username: ")
-    succ, user = users.find_user(username)
+    succ, user = user_client.find_user(username)
     if succ:
         # Found user, commence
         print("Found user!\n")
@@ -28,24 +28,24 @@ def update():
             action = input(f"update (addpriv/removepriv/viewtokens/checktoken/createtoken/exit) " + username + "> ")
             if "addpriv" in action:
                 spl = action.split()[1]
-                succ, newPrivUser = users.add_privilege(username, spl)
+                succ, newPrivUser = user_client.add_privilege(username, spl)
                 print_user(newPrivUser)
             elif "removepriv" in action:
                 spl = action.split()[1]
-                succ, newPrivUser = users.remove_privilege(username, spl)
+                succ, newPrivUser = user_client.remove_privilege(username, spl)
                 print_user(newPrivUser)
             elif action == "exit":
                 print("Goodbye.")
                 break
             elif action == "viewtokens":
-                tokens = users.get_all_tokens_for_user(username)
+                tokens = user_client.get_all_tokens_for_user(username)
                 print(tokens)
             elif action == "checktoken":
                 token = input("token> ")
-                succ, check = users.validate_token_for_user(username, token)
+                succ, check = user_client.validate_token_for_user(username, token)
                 print(succ, check)
             elif action == "createtoken":
-                succ, tokens = users.create_token_for_user(username)
+                succ, tokens = user_client.create_token_for_user(username)
                 print(succ, tokens)
             else:
                 print("invalid command. try again.")

@@ -125,3 +125,5 @@ class UsersClient(object):
     def token_has_privilege(self, token, privilege):
         succ, username = self.get_username_from_token(token)
         return self.has_privilege(username, privilege)
+
+user_client = UsersClient()

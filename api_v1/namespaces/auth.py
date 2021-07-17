@@ -1,13 +1,13 @@
 from flask import request
 from flask_restx import Resource, Namespace, fields
-import users as users
+from models.users.users import user_client
 from api_v1 import privilege_required
 
 api = Namespace("auth", description="Authorization operations", security=None)
 
 class User(object):
     def __init__(self, username):
-        success, user_object = users.find_user(username)
+        success, user_object = user_client.find_user(username)
         if success:
             self.username = user_object["username"]
             self.password = user_object["password"]
@@ -17,31 +17,31 @@ class User(object):
             self.username = None
 
     def validate_password(self, password):
-        return self.username and users.validate_user(self.username, password)
+        return self.username and user_client.validate_user(self.username, password)
 
     def has_privilege(self, privilege):
-        return users.has_privilege(self.username, privilege)
+        return user_client.has_privilege(self.username, privilege)
 
     def add_privilege(self, privilege):
-        succ, user = users.add_privilege(self.username, privilege)
+        succ, user = user_client.add_privilege(self.username, privilege)
         if succ:
             self.privileges = user["privileges"]
         return succ
 
     def remove_privilege(self, privilege):
-        succ, user = users.remove_privilege(self.username, privilege)
+        succ, user = user_client.remove_privilege(self.username, privilege)
         if succ:
             self.privileges = user["privileges"]
         return succ
 
     def validate_token(self, token):
-        succ, tokens = users.validate_token_for_user(self.username, token)
+        succ, tokens = user_client.validate_token_for_user(self.username, token)
         if succ:
             self.tokens = tokens
         return succ
 
     def create_token(self):
-        succ, token = users.create_token_for_user(self.username)
+        succ, token = user_client.create_token_for_user(self.username)
         if succ:
             self.tokens.append(token)
         return succ, token

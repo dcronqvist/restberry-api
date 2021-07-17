@@ -1,12 +1,7 @@
 from flask import Blueprint, request
 from flask_restx import Api
-# from flask_cors import CORS
-# from werkzeug.datastructures import ImmutableMultiDict
-from users import UsersClient
 import config as config
-# from pytechecker import check
-
-user_client = UsersClient()
+from models.users.users import user_client
 
 # Check if user has privilege to use part of API
 def privilege_required(privilege):
