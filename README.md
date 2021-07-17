@@ -1,6 +1,6 @@
 # restberry-api
 
-![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m788440920-edcdd5975b38ec31da628d55) ![Website](https://img.shields.io/website?down_message=down&label=status&up_message=up&url=https%3A%2F%2Fapi.dcronqvist.se) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/CI%20to%20Docker%20Hub?label=build%20%26%20docker%20hub%20push) ![Docker Pulls](https://img.shields.io/docker/pulls/dcronqvist/restberry-api) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dcronqvist/restberry-api/latest)
+![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m788440920-edcdd5975b38ec31da628d55) ![Website](https://img.shields.io/website?down_message=down&label=status&up_message=up&url=https%3A%2F%2Fapi.dcronqvist.se) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/Run%20Pytest?label=tests) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dcronqvist/restberry-api/CI%20to%20Docker%20Hub?label=build%20%26%20docker%20hub%20push) ![Docker Pulls](https://img.shields.io/docker/pulls/dcronqvist/restberry-api) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dcronqvist/restberry-api/latest)
 
 A REST API that used to be hosted on my Raspberry Pi 4, hence the name. Is now hosted as a docker container on another server. 
 
