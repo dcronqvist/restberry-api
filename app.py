@@ -24,4 +24,4 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
-app.run(debug=True, port=config.get_setting("listen-port", 5251), host="0.0.0.0")
+app.run(port=config.get_setting("listen-port", 5251), host="0.0.0.0")

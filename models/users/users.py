@@ -6,7 +6,7 @@ import uuid
 class UsersClient(object):
     def __init__(self):
         self.client = MongoClient(config.get_setting("mongo-db-conn", "null"))
-        self.db = self.client.restberry
+        self.db = self.client.restberry_api
 
     def find_user(self, username):
         user = {

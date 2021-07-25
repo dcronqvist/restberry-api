@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import config as config
 
 db_conn = MongoClient(config.get_setting("mongo-db-conn", "null"))
-db = db_conn.restberry
+db = db_conn.restberry_api
 
 coll_trans = db.transactions
 coll_accounts = db.accounts
