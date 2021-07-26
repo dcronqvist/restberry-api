@@ -1,7 +1,9 @@
+import datetime
 import graphene
 import requests as req
 import config as conf
 from models.users.users import user_client
+from models.economy.periods import get_dates_month_period
 from db import coll_accounts, coll_trans
 
 dev_user = conf.get_setting("dev-user", None)
@@ -71,6 +73,14 @@ class Transaction(graphene.ObjectType):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
         return get_account(self.to_account, token)
 
+class Period(graphene.ObjectType):
+    year = graphene.Int()
+    month = graphene.Int()
+    start = graphene.String()
+    end = graphene.String()
+    start_timestamp = graphene.Int()
+    end_timestamp = graphene.Int()
+
 class Mutations(graphene.ObjectType):
     pass
 
@@ -81,6 +91,16 @@ class Query(graphene.ObjectType):
     transactions = graphene.List(Transaction, start_date=graphene.Int(default_value=0), end_date=graphene.Int(default_value=(2 ** 53 - 1)), amount=graphene.Int(), desc=graphene.String(), from_account=graphene.Argument(AccountInput), to_account=graphene.Argument(AccountInput))
 
     accounts = graphene.List(Account, numbers=graphene.List(graphene.Int, required=False))
+
+    periods = graphene.List(Period, year=graphene.List(graphene.Int), month=graphene.List(graphene.Int), description="Gets economic periods based on what is specified. If neither year or month is specified, then the current period will be returned.")
+
+    def resolve_periods(self, info, year = None, month = None):
+        if not year and not month:
+            s, e = get_dates_month_period(datetime.date.today())
+            return [Period(year=e.year, month=e.month, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp())]
+
+        start_ends = [(y, m, *get_dates_month_period(datetime.date(y, m, 1))) for y in year for m in month ]
+        return sorted([Period(year=y, month=m, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp()) for y, m, s, e in start_ends], key=lambda p: p.start_timestamp)
 
     def resolve_accounts(self, info, numbers = []):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
