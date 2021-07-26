@@ -95,12 +95,21 @@ class Query(graphene.ObjectType):
     periods = graphene.List(Period, year=graphene.List(graphene.Int), month=graphene.List(graphene.Int), description="Gets economic periods based on what is specified. If neither year or month is specified, then the current period will be returned.")
 
     def resolve_periods(self, info, year = None, month = None):
-        if not year and not month:
-            s, e = get_dates_month_period(datetime.date.today())
-            return [Period(year=e.year, month=e.month, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp())]
+        token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
 
-        start_ends = [(y, m, *get_dates_month_period(datetime.date(y, m, 1))) for y in year for m in month ]
-        return sorted([Period(year=y, month=m, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp()) for y, m, s, e in start_ends], key=lambda p: p.start_timestamp)
+        succ, username = user_client.get_username_from_token(token)
+        if not succ:
+            raise Exception(f"User {username} does not exist")
+
+        if user_client.token_has_privileges(token, ["periods", "economy"]):
+            if not year and not month:
+                s, e = get_dates_month_period(datetime.date.today())
+                return [Period(year=e.year, month=e.month, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp())]
+
+            start_ends = [(y, m, *get_dates_month_period(datetime.date(y, m, 1))) for y in year for m in month ]
+            return sorted([Period(year=y, month=m, start=s.isoformat(), end=e.isoformat(), start_timestamp=s.timestamp(), end_timestamp=e.timestamp()) for y, m, s, e in start_ends], key=lambda p: p.start_timestamp)
+        else:
+            raise Exception("User must have privileges 'periods' and 'economy'")
 
     def resolve_accounts(self, info, numbers = []):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
