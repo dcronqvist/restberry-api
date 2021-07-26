@@ -2,6 +2,7 @@
     "greet-home": "Hello World!",
     "mongo-db-conn": "null",
     "secret-file": "creds",
+    "dev-user": "user",
     "minecraft-server-host": "serverip.or.hostname",
     "minecraft-server-port": 25565,
     "minecraft-server-password": "password",

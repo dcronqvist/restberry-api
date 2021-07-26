@@ -126,4 +126,25 @@ class UsersClient(object):
         succ, username = self.get_username_from_token(token)
         return self.has_privilege(username, privilege)
 
+    def token_has_privileges(self, token, privileges):
+        succ, username = self.get_username_from_token(token)
+        for p in privileges:
+            if not self.has_privilege(username, p):
+                return False
+        return True
+
+    def get_valid_token(self, username):
+        succ, user = self.find_user(username)
+        if succ:
+            succ, tokens = self.get_all_tokens_for_user(username)
+            if succ:
+                check = [tokenobj for tokenobj in tokens if ((tokenobj["created"] + config.get_setting("token-lifetime-minutes", 30) * 60) > datetime.datetime.now().timestamp())]
+                if len(check) > 0:
+                    return check[0]["token"]
+                else:
+                    return self.create_token_for_user(username)[1]["token"]
+        return None
+            
+
+
 user_client = UsersClient()

@@ -44,7 +44,16 @@ authorizations = {
     }
 }
 
-api = Api(blueprint, title="restberry-api", version="1.1.0", description="a dani api", authorizations=authorizations, security=["token"])
+api_doc = """
+**API Documentation**
+
+v1.0.0: First release of API. Only pihole, period and account endpoints.
+v1.1.0: Added transactions namespace.
+v1.2.0: Added AI namespace.
+v1.3.0: Added basic GraphQL section of API. available at /v1/graphql.
+"""
+
+api = Api(blueprint, title="restberry-api", version="1.3.0", description=api_doc, authorizations=authorizations, security=["token"])
 
 api.add_namespace(auth)
 api.add_namespace(pihole)
