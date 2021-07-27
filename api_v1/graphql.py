@@ -5,6 +5,7 @@ import config as conf
 from models.users.users import user_client
 from models.economy.periods import get_dates_month_period
 from db import coll_accounts, coll_trans
+from models.ai.accountant import predict_accounts
 
 dev_user = conf.get_setting("dev-user", None)
 
@@ -87,12 +88,36 @@ class Mutations(graphene.ObjectType):
 class AccountInput(graphene.InputObjectType):
     number = graphene.Int(required=True, description="Account number")
 
+class AccountantInput(graphene.InputObjectType):
+    date_trans = graphene.Int()
+    amount = graphene.Float()
+    desc = graphene.String()
+    is_outcome = graphene.Boolean()
+    is_swish = graphene.Boolean()
+
+class AccountantPrediction(graphene.ObjectType):
+    amount = graphene.Float()
+    desc = graphene.String()
+    date_trans = graphene.Int()
+    from_account = graphene.Field(Account)
+    to_account = graphene.Field(Account)
+
+    def resolve_from_account(self, info):
+        token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
+        return get_account(self.from_account, token)
+
+    def resolve_to_account(self, info):
+        token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
+        return get_account(self.to_account, token)
+
 class Query(graphene.ObjectType):
     transactions = graphene.List(Transaction, start_date=graphene.Int(default_value=0), end_date=graphene.Int(default_value=(2 ** 53 - 1)), amount=graphene.Int(), desc=graphene.String(), from_account=graphene.Argument(AccountInput), to_account=graphene.Argument(AccountInput))
 
     accounts = graphene.List(Account, numbers=graphene.List(graphene.Int, required=False))
 
     periods = graphene.List(Period, year=graphene.List(graphene.Int), month=graphene.List(graphene.Int), description="Gets economic periods based on what is specified. If neither year or month is specified, then the current period will be returned.")
+
+    accountant = graphene.Field(AccountantPrediction, transaction=graphene.Argument(AccountantInput, required=True))
 
     def resolve_periods(self, info, year = None, month = None):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
@@ -160,5 +185,20 @@ class Query(graphene.ObjectType):
             return [Transaction(**t) for t in list(coll_trans.find(query, {"_id": 0}, sort=[("date_trans", 1)]))]
         
         raise Exception("User must have privileges 'transactions', 'accounts' and 'economy'")
-            
+    
+    def resolve_accountant(self, info, transaction):
+        token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
+        
+        succ, username = user_client.get_username_from_token(token)
+        if not succ:
+            raise Exception(f"User {username} does not exist")
+
+        
+        if not user_client.token_has_privileges(token, ["transactions", "economy", "accounts"]):
+            raise Exception(f"User {username} does not have privileges to access this endpoint")
+
+        trans = predict_accounts(transaction.date_trans, transaction.amount, transaction.is_outcome, transaction.is_swish, transaction.desc)
+        return AccountantPrediction(**trans)
+
+
 graphql_schema = graphene.Schema(query=Query)
