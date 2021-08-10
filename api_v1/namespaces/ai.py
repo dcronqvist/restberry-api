@@ -4,6 +4,7 @@ from flask_restx import Resource, Namespace, fields, reqparse
 from api_v1 import privilege_required
 import pandas as pd
 import pickle
+from db import coll_accounts
 
 api = Namespace("ai", path="/ai", description="Endpoints utilizing some of my trained scikit models.")
 
@@ -12,18 +13,14 @@ post_model = api.model("accountant_payload", {
     "date_trans": fields.Integer(example=round(datetime.now().timestamp()), required=True),
     "desc": fields.String(example="Transaction for stuff", required=True),
     "is_outcome": fields.Boolean(example=True, required=True),
-    "is_swish": fields.Boolean(example=False, required=True)
+    "is_swish": fields.Boolean(example=False, required=True),
+    "account_names": fields.Boolean(example=True, default=False, help="If true, account names will also be returned.")
 })
 
 accountant_post_doc = """
 ### A model for predicting transaction accounts
 
 By supplying only very little information about a transaction, this model will be able to quite accurately predict both which account the transaction's amount is going FROM, but also TO.
-
-#### Privileges
-- economy
-- transactions
-- accounts
 """
 
 def get_known(desc):
@@ -117,9 +114,6 @@ with open("scikit-models/to_account_v1.ai", "rb") as f:
 class TransactionAccountsPredictor(Resource):
     @api.doc(description=accountant_post_doc)
     @api.expect(post_model, validate=True)
-    @privilege_required("transactions")
-    @privilege_required("economy")
-    @privilege_required("accounts")
     def post(self):
         trans = api.payload
         df = pd.DataFrame()
@@ -138,6 +132,12 @@ class TransactionAccountsPredictor(Resource):
         trans["from_account"] = [int(x) for x in list(predicted_from)][0]
         trans["to_account"] = [int(x) for x in list(predicted_to)][0]
 
+        if trans["account_names"]:
+            trans["from_account_info"] = coll_accounts.find_one({ "number": trans["from_account"], "user": "dani" }, { "_id": 0, "user": 0, "number": 0})
+            trans["to_account_info"] = coll_accounts.find_one({ "number": trans["to_account"], "user": "dani" }, { "_id": 0, "user": 0, "number": 0})
+        
+
+        del trans["account_names"]
         del trans["is_outcome"]
         del trans["is_swish"] 
 
