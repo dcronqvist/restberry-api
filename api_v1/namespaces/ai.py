@@ -107,7 +107,7 @@ def get_known(desc):
         2: known_snacks,
         3: known_restaurants,
         4: known_tech_stores,
-        5: ["västtrafik", "buss", "", "public transport", "spårvagn", "tunnelbana", "tbana"],
+        5: ["västtrafik", "buss", "public transport", "spårvagn", "tunnelbana", "tbana"],
         6: ["lyko", "salong", "levi", "zalando"]
     }  
     for known in known_stuff:
