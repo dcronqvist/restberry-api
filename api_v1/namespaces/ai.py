@@ -76,9 +76,20 @@ def get_known(desc):
         "john sco",
         "UBER * EATS",
         "taverna",
-        "W.O.K"
+        "W.O.K",
+        "mat ute",
+        "restaurang",
+        "äta ute",
+        "åt ute",
+        "restaurant"
     ]
     known_snacks = [
+        "snacks",
+        "fika",
+        "godis",
+        "glass",
+        "klubba",
+        "snickers",
         "selecta",
         "alltgodis",
         "alltigodis",
@@ -96,7 +107,7 @@ def get_known(desc):
         2: known_snacks,
         3: known_restaurants,
         4: known_tech_stores,
-        5: ["västtrafik"],
+        5: ["västtrafik", "buss", "", "public transport", "spårvagn", "tunnelbana", "tbana"],
         6: ["lyko", "salong", "levi", "zalando"]
     }  
     for known in known_stuff:
