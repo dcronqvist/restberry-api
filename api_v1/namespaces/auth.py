@@ -80,3 +80,19 @@ class LoginResource(Resource):
             return { "error": "Invalid username or password." }, 401
         succ, token = user.create_token()
         return { "success": succ, "token": token }, 200
+
+@api.route("/checktoken")
+class CheckToken(Resource):
+    @privilege_required(None)
+    def get(self):
+        succ, username = user_client.get_username_from_token(request.headers.get("Authorization"))
+
+        if not succ:
+            return { "error": "Invalid token." }, 401
+
+        succ, check = user_client.validate_token_for_user(username, request.headers.get("Authorization"))
+
+        if not succ:
+            return { "error": "Invalid token." }, 401
+
+        return { "success": True, "username": username }, 200
