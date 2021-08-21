@@ -11,7 +11,6 @@ dev_user = conf.get_setting("dev-user", None)
 
 def get_token_from_info(info, require_token=False) -> str:
     if "Authorization" in info.context.headers:
-        print(info.context.headers["Authorization"])
         return info.context.headers["Authorization"]
     else:
         if require_token:
