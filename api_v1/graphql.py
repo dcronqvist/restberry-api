@@ -109,6 +109,10 @@ class AccountantPrediction(graphene.ObjectType):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
         return get_account(self.to_account, token)
 
+class FromToCounter(graphene.ObjectType):
+    amount = graphene.Float()
+    amount_of_transactions = graphene.Int()
+
 class Query(graphene.ObjectType):
     transactions = graphene.List(Transaction, start_date=graphene.Int(default_value=0), end_date=graphene.Int(default_value=(2 ** 53 - 1)), amount=graphene.Int(), desc=graphene.String(), from_account=graphene.Argument(AccountInput), to_account=graphene.Argument(AccountInput))
 
@@ -117,6 +121,29 @@ class Query(graphene.ObjectType):
     periods = graphene.List(Period, year=graphene.List(graphene.Int), month=graphene.List(graphene.Int), description="Gets economic periods based on what is specified. If neither year or month is specified, then the current period will be returned.")
 
     accountant = graphene.Field(AccountantPrediction, transaction=graphene.Argument(AccountantInput, required=True))
+
+    from_to = graphene.Field(FromToCounter, from_account=graphene.Argument(AccountInput), to_account=graphene.Argument(AccountInput))
+
+    def resolve_from_to(self, info, from_account=None, to_account=None):
+        token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
+
+        succ, username = user_client.get_username_from_token(token)
+        if not succ:
+            raise Exception(f"User {username} does not exist")
+
+        query = {
+            "user": username,
+        }
+
+        if from_account:
+            query["from_account"] = from_account.number
+        if to_account:
+            query["to_account"] = to_account.number
+
+    
+        transactions = list(coll_trans.find(query, { "_id": 0 }))
+
+        return FromToCounter(amount=sum([t["amount"] for t in transactions]), amount_of_transactions=len(transactions))
 
     def resolve_periods(self, info, year = None, month = None):
         token = get_token_from_info(info, require_token=not dev_user) or user_client.get_valid_token(dev_user)
