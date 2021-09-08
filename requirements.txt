@@ -11,7 +11,7 @@ Flask==1.1.4
 Flask-Cors==3.0.10
 Flask-GraphQL==2.0.1
 Flask-HTTPAuth==4.4.0
-flask-restx==0.4.0
+flask-restx==0.5.1
 graphene==2.1.9
 graphql-core==2.3.2
 graphql-relay==2.0.1
